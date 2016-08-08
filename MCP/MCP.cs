@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Runtime.Serialization.Formatters.Binary;
 
 
 namespace MCP
 {
+    [Serializable()]
     public partial class MCP_tool : Form
     {
         DateTime Ref_Start;
@@ -24,23 +26,34 @@ namespace MCP
         DateTime Export_Start;
         DateTime Export_End;
 
-        Site_data[] Ref_Data;
+        public Site_data[] Ref_Data = new Site_data[0];
         bool Got_Ref = false;
-        Site_data[] Target_Data;
+        string Ref_filename = "";
+        Site_data[] Target_Data = new Site_data[0];
         bool Got_Targ = false;
+        string Target_filename = "";
 
-        Concurrent_data[] Conc_Data;
+        Concurrent_data[] Conc_Data = new Concurrent_data[0];
         bool Got_Conc = false;
-        bool Conc_form = true;
+
+        int Num_WD_Sectors = 1;
+        float WS_bin_width = 1;
 
         Lin_MCP MCP_Ortho;
         Method_of_Bins MCP_Bins;
         Lin_MCP MCP_Varrat;
 
-        MCP_Uncert[] Uncert_Ortho;
-        MCP_Uncert[] Uncert_Bins;
-        MCP_Uncert[] Uncert_Varrat;
+        MCP_Uncert[] Uncert_Ortho = new MCP_Uncert[0];
+        MCP_Uncert[] Uncert_Bins = new MCP_Uncert[0];
+        MCP_Uncert[] Uncert_Varrat = new MCP_Uncert[0];
 
+        public Stats Stat = new Stats();
+        string Saved_Filename = "";
+
+        bool Is_Newly_Opened_File = false;
+        
+        // structure for MCP_Uncertainty
+        [Serializable()]
         public struct MCP_Uncert
         {
             public int WSize; //Window size
@@ -65,7 +78,7 @@ namespace MCP
 
         }
 
-
+        [Serializable()]
         public struct Site_data
         {
             public DateTime This_Date;
@@ -73,6 +86,7 @@ namespace MCP
             public float This_WD;
         }
 
+        [Serializable()]
         public struct Concurrent_data
         {
             public DateTime This_Date;
@@ -82,6 +96,7 @@ namespace MCP
             public float Target_WD;
         }
 
+        [Serializable()]
         public struct Lin_MCP
         {
             public float[] Slope; // Slope of linear MCP methods for each WD sector & overall
@@ -98,6 +113,7 @@ namespace MCP
             }
         }
 
+        [Serializable()]
         public struct Method_of_Bins
         {
             public Bin_Object[,] Bin_Avg_SD_Cnt; // i = WS bin, j = WD bin
@@ -110,6 +126,7 @@ namespace MCP
             }
         }
 
+        [Serializable()]
         public struct Bin_Object
         {
             public float Avg_WS_Ratio;
@@ -145,7 +162,18 @@ namespace MCP
 
             if (filename != "")
             {
-                StreamReader file = new StreamReader(filename);
+                StreamReader file;
+                try
+                {
+                    file = new StreamReader(filename);
+                }
+                catch
+                {
+                    MessageBox.Show("Error opening the reference data file. Check that it's not open in another program.", "", MessageBoxButtons.OK);
+                    return;
+                }
+
+                Ref_filename = filename;
                 txtLoadedReference.Text = filename;
                 while ((line = file.ReadLine()) != null)
                 {
@@ -154,7 +182,7 @@ namespace MCP
                         Char[] delims = { ',' };
                         String[] substrings = line.Split(delims);
                         // Only read in data intervals with valid WS & WD
-                        if (substrings[1] != "NaN" & substrings[2] != "NaN" & Convert.ToSingle(substrings[1]) > 0)
+                        if (substrings[1] != "NaN" && substrings[2] != "NaN" && Convert.ToSingle(substrings[1]) > 0)
                         {
                             This_Date = Convert.ToDateTime(substrings[0]);
                             This_WS = Convert.ToSingle(substrings[1]);
@@ -185,10 +213,8 @@ namespace MCP
                         }
 
                     }
-                    catch (Exception ex)
-                    {
-
-                    }
+                    catch
+                    { }
                 }
 
 
@@ -222,32 +248,23 @@ namespace MCP
                 Export_End = Ref_End;
                 date_Export_End.Value = Export_End;
 
-                if (Target_Data != null)
-                    Find_Concurrent_Data(true, Conc_Start, Conc_End);
-
                 Got_Ref = true;
+                Set_Conc_Dates_On_Form();
+
+                if (Target_Data.Length > 0)
+                    Find_Concurrent_Data(true, Conc_Start, Conc_End);
+                                
                 Update_plot();
                 Update_Text_boxes();
                 Update_Dates();
+                Changes_Made();
             }
         }
 
-        public int Get_WS_width()
+        public float Get_WS_width()
         {
             // Read WS interval width to be used in Method of Bins
-            int WS_width = 0;
-            try
-            {
-                WS_width = Convert.ToInt32(txtWS_bin_width.Text);
-            }
-
-            catch (Exception ex)
-            {
-                txtWS_bin_width.Text = "1";
-                WS_width = 1;
-            }
-
-            return WS_width;
+            return WS_bin_width;
         }
 
         public int Get_WD_ind()
@@ -265,7 +282,7 @@ namespace MCP
 
             }
 
-            catch (Exception ex)
+            catch
             {
                 cboWD_sector.SelectedIndex = 0;
                 WD_ind = 0;
@@ -276,18 +293,8 @@ namespace MCP
 
         public int Get_Num_WD()
         {
-            // Read selected wind rose size to be used in MCP
-            int Num_WD = 12;
-            try
-            {
-                Num_WD = Convert.ToInt32(cboNumWD.SelectedItem);
-            }
-            catch (Exception ex)
-            {
-                cboNumWD.SelectedIndex = 2;
-            }
-
-            return Num_WD;
+                        
+            return Num_WD_Sectors;
         }
 
         public string Get_MCP_Method()
@@ -299,41 +306,13 @@ namespace MCP
                 MCP_Method = cboMCP_Type.SelectedText.ToString();
                 MCP_Method = cboMCP_Type.Text;
             }
-            catch (Exception ex)
+            catch
             { }
 
             return MCP_Method;
         }
 
-        public float Calc_Avg_WS(Site_data[] Site, float Min_WS, float Max_WS, DateTime Start_time, DateTime End_time, float Min_WD, float Max_WD)
-        {
-            // Calculates and returns the average wind speed at Site for specified WS bounds, specified start/end time and WD bounds
-            float Avg_WS = 0;
-            int Avg_count = 0;
-
-            foreach (Site_data This_Site in Site)
-                if (This_Site.This_Date >= Start_time & This_Site.This_Date <= End_time & This_Site.This_WS > Min_WS & This_Site.This_WS < Max_WS)
-                {
-                    if (Max_WD > Min_WD)
-                    {
-                        if (This_Site.This_WD >= Min_WD & This_Site.This_WD <= Max_WD)
-                        {
-                            Avg_WS = Avg_WS + This_Site.This_WS;
-                            Avg_count = Avg_count + 1;
-                        }
-                    }
-                    else if (This_Site.This_WD >= Min_WD | This_Site.This_WD <= Max_WD)
-                    {
-                        Avg_WS = Avg_WS + This_Site.This_WS;
-                        Avg_count = Avg_count + 1;
-                    }
-                }
-
-            if (Avg_count > 0)
-                Avg_WS = Avg_WS / Avg_count;
-
-            return Avg_WS;
-        }
+        
 
         public float[] Get_Conc_Avgs_Count(float Min_WD, float Max_WD)
         {
@@ -343,18 +322,18 @@ namespace MCP
             float[] Avg_WS_WD = { 0, 0, 0 }; // 0: Target WS; 1: Reference WS; 2: Data Count'
 
             foreach (Concurrent_data Conc in Conc_Data)
-                if (Conc.This_Date >= Conc_Start & Conc.This_Date <= Conc_End)
+                if (Conc.This_Date >= Conc_Start && Conc.This_Date <= Conc_End)
                 {
                     if (Max_WD > Min_WD)
                     {
-                        if (Conc.Ref_WD >= Min_WD & Conc.Ref_WD <= Max_WD)
+                        if (Conc.Ref_WD >= Min_WD && Conc.Ref_WD <= Max_WD)
                         {
                             Avg_WS_WD[0] = Avg_WS_WD[0] + Conc.Target_WS;
                             Avg_WS_WD[1] = Avg_WS_WD[1] + Conc.Ref_WS;
                             Avg_WS_WD[2] = Avg_WS_WD[2] + 1;
                         }
                     }
-                    else if (Conc.Ref_WD >= Min_WD | Conc.Ref_WD <= Max_WD)
+                    else if (Conc.Ref_WD >= Min_WD || Conc.Ref_WD <= Max_WD)
                     {
                         Avg_WS_WD[0] = Avg_WS_WD[0] + Conc.Target_WS;
                         Avg_WS_WD[1] = Avg_WS_WD[1] + Conc.Ref_WS;
@@ -380,7 +359,7 @@ namespace MCP
 
             if (Got_Conc)
             {
-                if (Min_WD == 0 & Max_WD == 360)
+                if (Min_WD == 0 && Max_WD == 360)
                 {
                     Array.Resize(ref These_WS, Conc_Data.Length);
 
@@ -396,10 +375,10 @@ namespace MCP
                     foreach (Concurrent_data These_Conc in Conc_Data)
                         if (Max_WD > Min_WD)
                         {
-                            if (These_Conc.Ref_WD >= Min_WD & These_Conc.Ref_WD <= Max_WD)
+                            if (These_Conc.Ref_WD >= Min_WD && These_Conc.Ref_WD <= Max_WD)
                                 WD_count++;
                         }
-                        else if (These_Conc.Ref_WD >= Min_WD | These_Conc.Ref_WD <= Max_WD)
+                        else if (These_Conc.Ref_WD >= Min_WD || These_Conc.Ref_WD <= Max_WD)
                             WD_count++;
 
                     Array.Resize(ref These_WS, WD_count);
@@ -408,7 +387,7 @@ namespace MCP
                     foreach (Concurrent_data These_Conc in Conc_Data)
                         if (Max_WD > Min_WD)
                         {
-                            if (These_Conc.Ref_WD >= Min_WD & These_Conc.Ref_WD <= Max_WD)
+                            if (These_Conc.Ref_WD >= Min_WD && These_Conc.Ref_WD <= Max_WD)
                             {
                                 if (Target_or_Ref == "Target")
                                     These_WS[WD_count] = These_Conc.Target_WS;
@@ -417,7 +396,7 @@ namespace MCP
                                 WD_count++;
                             }
                         }
-                        else if (These_Conc.Ref_WD >= Min_WD | These_Conc.Ref_WD <= Max_WD)
+                        else if (These_Conc.Ref_WD >= Min_WD || These_Conc.Ref_WD <= Max_WD)
                         {
                             if (Target_or_Ref == "Target")
                                 These_WS[WD_count] = These_Conc.Target_WS;
@@ -431,76 +410,7 @@ namespace MCP
             return These_WS;
         }
 
-        public double Calc_Variance(float[] vals)
-        {
-            // Calculates and returns the variance of vals[].
-            // Used to calculate R^2 and in orthogonal regression and variance ratio
-
-            double variance = 0;
-            double sum_x = 0;
-            double mean = 0;
-            int val_length = vals.Length;
-
-            if (vals != null)
-            {
-                foreach (double value in vals)
-                {
-                    sum_x = sum_x + value;
-                }
-
-                mean = sum_x / val_length;
-
-                foreach (double value in vals)
-                {
-                    variance = variance + (Math.Pow(value - mean, 2) / (val_length - 1));
-                }
-
-            }
-
-            return variance;
-        }
-
-        public double Calc_Covariance(float[] x_vals, float[] y_vals)
-        {
-            // Calculates and returns the covariance between x_vals and y_vals.
-            // Used in orthogonal regression
-
-            double covar = 0;
-            double sum_XY = 0;
-            double sum_x = 0;
-            double sum_y = 0;
-            double mean_x = 0;
-            double mean_y = 0;
-
-            if ((x_vals != null) & (y_vals != null))
-                if (x_vals.Length == y_vals.Length)
-                {
-                    for (int i = 0; i < x_vals.Length; i++)
-                    {
-                        sum_x = sum_x + x_vals[i];
-                    }
-
-                    mean_x = sum_x / x_vals.Length;
-
-                    for (int i = 0; i < x_vals.Length; i++)
-                    {
-                        sum_y = sum_y + y_vals[i];
-                    }
-
-                    mean_y = sum_y / y_vals.Length;
-
-                    for (int i = 0; i < x_vals.Length; i++)
-                    {
-                        sum_XY = sum_XY + (x_vals[i] - mean_x) * (y_vals[i] - mean_y);
-                    }
-
-                    covar = sum_XY / x_vals.Length;
-                }
-
-
-            return covar;
-        }
-
+        
         private void btnImportTarget_Click(object sender, EventArgs e)
         {
             // Read in time series wind speed and WD data at reference site
@@ -520,8 +430,19 @@ namespace MCP
 
             if (filename != "")
             {
+                StreamReader file;
 
-                StreamReader file = new StreamReader(filename);
+                try
+                {
+                    file = new StreamReader(filename);
+                }
+                catch
+                {
+                    MessageBox.Show("Error opening the target data file. Check that it's not open in another program.", "", MessageBoxButtons.OK);
+                    return;
+                }
+
+                Target_filename = filename;
                 txtLoadedTarget.Text = filename;
 
                 while ((line = file.ReadLine()) != null)
@@ -530,7 +451,7 @@ namespace MCP
                     {
                         Char[] delims = { ',' };
                         String[] substrings = line.Split(delims);
-                        if (substrings[1] != "NaN" & substrings[2] != "NaN" & Convert.ToSingle(substrings[1]) > 0)
+                        if (substrings[1] != "NaN" && substrings[2] != "NaN" && Convert.ToSingle(substrings[1]) > 0)
                         {
                             This_Date = Convert.ToDateTime(substrings[0]);
                             This_WS = Convert.ToSingle(substrings[1]);
@@ -563,7 +484,7 @@ namespace MCP
 
 
                     }
-                    catch (Exception ex)
+                    catch 
                     {
 
                     }
@@ -571,48 +492,20 @@ namespace MCP
 
                 file.Close();
 
-                // Find start and end dates
-                Target_Start = Target_Data[0].This_Date;
-                Target_End = Target_Data[Target_count - 1].This_Date;
+                Got_Targ = true;
 
-                for (int i = 0; i < Target_count; i++)
-                {
-                    if (Target_Data[i].This_Date < Target_Start)
-                        Target_Start = Target_Data[i].This_Date;
-
-                    if (Target_Data[i].This_Date > Target_End)
-                        Target_End = Target_Data[i].This_Date;
-                }
-
-                if (Got_Ref)
-                {
-                    if (Target_Start > Ref_Start)
-                        date_Corr_Start.Value = Target_Start;
-                    else
-                        date_Corr_Start.Value = Ref_Start;
-
-                    if (Target_End < Ref_End)
-                        date_Corr_End.Value = Target_End;
-                    else
-                        date_Corr_End.Value = Ref_End;
-                }
-                else
-                {
-                    date_Corr_Start.Value = Target_Start;
-                    date_Corr_End.Value = Target_End;
-                }
+                Set_Conc_Dates_On_Form();
 
                 // Find concurrent data, if have target data
-                if (Ref_Data != null)
+                if (Ref_Data.Length > 0)
                 {
                     Find_Concurrent_Data(true, Conc_Start, Conc_End);
 
                 }
 
-                Got_Targ = true;
-
                 Update_plot();
                 Update_Text_boxes();
+                Changes_Made();
 
             }
         }
@@ -636,7 +529,7 @@ namespace MCP
                 Conc_End = End;
             }
 
-            if (Ref_Data == null || Target_Data == null) return;
+            if (Ref_Data.Length == 0 || Target_Data.Length == 0) return;
 
             foreach (Site_data RefSite in Ref_Data)
             {
@@ -681,222 +574,18 @@ namespace MCP
                 MessageBox.Show("There is no concurrent data between the reference and target site for the selected start and end dates.");
             else
                 Got_Conc = true;
-
-
+            
         }
-
-        // structure for MCP_Uncertainty
-
-        public float Get_Orth_Est(DateTime This_Conc_Start, DateTime This_Conc_End, float WD_ind)
+         
+      
+        public float Do_MCP(DateTime This_Conc_Start, DateTime This_Conc_End, bool Use_All_Data, string MCP_Method)
         {
-            int Num_WD = Get_Num_WD();
-            // if WD_ind = Num_WD then use all WD data. If WD_ind < Num_WD then only look at WD sector = WD_ind
-            float LT_Orth_Est = 0;
-            float Min_WD = 0;
-            float Max_WD = 0;
+            // Performs MCP using a linear model (i.e orthogonal regression or variance ratio) 
+            // Orth. Reg. minimizes the distance between both the reference and target site wind speeds from the regression line
+            
+            Find_Concurrent_Data(Use_All_Data, This_Conc_Start, This_Conc_End);
 
-            if (WD_ind == Num_WD)
-            {
-                Min_WD = 0;
-                Max_WD = 360;
-            }
-            else if (WD_ind < Num_WD)
-            {
-                Min_WD = WD_ind * 360 / Num_WD - 360 / Num_WD / 2;
-                if (Min_WD < 0) Min_WD = Min_WD + 360;
-                Max_WD = WD_ind * 360 / Num_WD + 360 / Num_WD / 2;
-                if (Max_WD > 360) Max_WD = Max_WD - 360;
-            }
-
-            // Find_Concurrent - specify Start and End
-            Find_Concurrent_Data(false, This_Conc_Start, This_Conc_End);
-            float[] Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
-            float[] Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
-            // Calculate means, variance, co-variance
-            float[] This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
-            float Avg_Targ = This_Conc[0];
-            float Avg_Ref = This_Conc[1];
-            float var_x = Convert.ToSingle(Calc_Variance(Ref_WS));
-            float var_y = Convert.ToSingle(Calc_Variance(Target_WS));
-            float covar = Convert.ToSingle(Calc_Covariance(Ref_WS, Target_WS));
-            // Calculate slope, intercept
-            float slope = Calc_Ortho_Slope(var_x, var_y, covar);
-            float intercept = Avg_Targ - slope * Avg_Ref;
-            // Calculate LT_Est
-            float lt_ref_avg = Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, 0, 360);
-
-            LT_Orth_Est = lt_ref_avg * slope + intercept;
-
-            return LT_Orth_Est;
-        }
-
-        public float Get_Bins_Est(DateTime This_Conc_Start, DateTime This_Conc_End, int WD_ind)
-        {
-            int Num_WD = Get_Num_WD();
-            int WS_bin = Get_WS_width();
-            int Num_WS = 30 / WS_bin;
-
-            Method_of_Bins These_Bins = new Method_of_Bins();
-
-            These_Bins.Bin_Avg_SD_Cnt = new Bin_Object[Num_WS, Num_WD + 1]; // WD_ind = Num_WD is overall ratio
-
-            int Min_WD = 0;
-            int Max_WD = 0;
-
-            float LT_Bins_Est = 0;
-
-            Find_Concurrent_Data(false, This_Conc_Start, This_Conc_End);
-
-            foreach (Concurrent_data These_Conc in Conc_Data)
-            {
-                int WS_ind = Convert.ToInt32(Math.Round(These_Conc.Ref_WS, 0));
-                if (WS_ind > Num_WS) WS_ind = Num_WS - 1;
-
-                int WD_ind_i = Convert.ToInt32(These_Conc.Ref_WD / (360 / Num_WD));
-                if (WD_ind_i == Num_WD) WD_ind_i = 0;
-
-                // Directional ratios
-                These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].Avg_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].Avg_WS_Ratio + These_Conc.Target_WS / These_Conc.Ref_WS;
-                These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].SD_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].SD_WS_Ratio + (float)Math.Pow(These_Conc.Target_WS / These_Conc.Ref_WS, 2);
-                These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].Count++;
-
-                // Overall ratios (all WD)
-                These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].Avg_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].Avg_WS_Ratio + These_Conc.Target_WS / These_Conc.Ref_WS;
-                These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].SD_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].SD_WS_Ratio + (float)Math.Pow(These_Conc.Target_WS / These_Conc.Ref_WS, 2);
-                These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].Count++;
-            }
-
-            for (int i = 0; i < Num_WS; i++)
-                for (int j = 0; j <= Num_WD; j++)
-                {
-                    if (These_Bins.Bin_Avg_SD_Cnt[i, j].Count > 0)
-                    {
-                        These_Bins.Bin_Avg_SD_Cnt[i, j].Avg_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[i, j].Avg_WS_Ratio / These_Bins.Bin_Avg_SD_Cnt[i, j].Count;
-                        These_Bins.Bin_Avg_SD_Cnt[i, j].SD_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[i, j].SD_WS_Ratio / These_Bins.Bin_Avg_SD_Cnt[i, j].Count -
-                            (float)Math.Pow(These_Bins.Bin_Avg_SD_Cnt[i, j].Avg_WS_Ratio, 2);
-                    }
-
-                }
-
-            // Estimate time series data at target site
-
-            int Ref_count = Ref_Data.Length;
-            Array.Resize(ref These_Bins.LT_WS_Est, Ref_count);
-
-            for (int i = 0; i < Ref_count; i++)
-            {
-                int WS_ind = Convert.ToInt32(Math.Round(Ref_Data[i].This_WS, 0));
-                int WD_ind_i = Convert.ToInt32(Ref_Data[i].This_WD / (360 / Num_WD));
-
-                if (WD_ind_i == Num_WD) WD_ind_i = Num_WD - 1;
-
-                These_Bins.LT_WS_Est[i].This_Date = Ref_Data[i].This_Date;
-                if (These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].Avg_WS_Ratio > 0)
-                    These_Bins.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind_i].Avg_WS_Ratio;
-                else
-                {
-                    // there was no data for this bin so find the two closest ratios and use average of two
-                    float Avg_Ratio = 0;
-                    int Avg_Ratio_count = 0;
-                    int Minus_Ind = WS_ind;
-                    int Plus_Ind = WS_ind;
-                    int count_while = 0;
-
-                    while (Avg_Ratio_count < 2 & (Minus_Ind != 0 | Plus_Ind != Num_WS))
-                    {
-                        if (Minus_Ind > 0) Minus_Ind--;
-                        if (Plus_Ind < (Num_WS - 1)) Plus_Ind++;
-
-                        if (These_Bins.Bin_Avg_SD_Cnt[Minus_Ind, WD_ind_i].Avg_WS_Ratio > 0)
-                        {
-                            Avg_Ratio = Avg_Ratio + These_Bins.Bin_Avg_SD_Cnt[Minus_Ind, WD_ind_i].Avg_WS_Ratio;
-                            Avg_Ratio_count++;
-                        }
-
-                        if (These_Bins.Bin_Avg_SD_Cnt[Plus_Ind, WD_ind_i].Avg_WS_Ratio > 0)
-                        {
-                            Avg_Ratio = Avg_Ratio + These_Bins.Bin_Avg_SD_Cnt[Plus_Ind, WD_ind_i].Avg_WS_Ratio;
-                            Avg_Ratio_count++;
-                        }
-                        count_while++;
-                        if (count_while > 30)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (Avg_Ratio_count > 0) Avg_Ratio = Avg_Ratio / Avg_Ratio_count;
-                    These_Bins.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * Avg_Ratio;
-                }
-                These_Bins.LT_WS_Est[i].This_WD = Ref_Data[i].This_WD;
-            }
-
-            if (WD_ind == Num_WD)
-            {
-                Min_WD = 0;
-                Max_WD = 360;
-            }
-            else if (WD_ind < Num_WD)
-            {
-                Min_WD = WD_ind * 360 / Num_WD - 360 / Num_WD / 2;
-                if (Min_WD < 0) Min_WD = Min_WD + 360;
-                Max_WD = WD_ind * 360 / Num_WD + 360 / Num_WD / 2;
-                if (Max_WD > 360) Max_WD = Max_WD - 360;
-            }
-
-            LT_Bins_Est = Calc_Avg_WS(These_Bins.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
-            return LT_Bins_Est;
-        }
-
-        public float Get_Varrat_Est(DateTime This_Conc_Start, DateTime This_Conc_End, float WD_ind)
-        {
-            int Num_WD = Get_Num_WD();
-            // if WD_ind = Num_WD then use all WD data. If WD_ind < Num_WD then only look at WD sector = WD_ind
-            float LT_Varrat_Est = 0;
-            float Min_WD = 0;
-            float Max_WD = 0;
-
-            if (WD_ind == Num_WD)
-            {
-                Min_WD = 0;
-                Max_WD = 360;
-            }
-            else if (WD_ind < Num_WD)
-            {
-                Min_WD = WD_ind * 360 / Num_WD - 360 / Num_WD / 2;
-                if (Min_WD < 0) Min_WD = Min_WD + 360;
-                Max_WD = WD_ind * 360 / Num_WD + 360 / Num_WD / 2;
-                if (Max_WD > 360) Max_WD = Max_WD - 360;
-            }
-
-            // Find_Concurrent - specify Start and End
-            Find_Concurrent_Data(false, This_Conc_Start, This_Conc_End);
-            float[] Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
-            float[] Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
-            // Calculate means, variance, co-variance
-            float[] This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
-            float Avg_Targ = This_Conc[0];
-            float Avg_Ref = This_Conc[1];
-            float var_x = Convert.ToSingle(Calc_Variance(Ref_WS));
-            float var_y = Convert.ToSingle(Calc_Variance(Target_WS));
-            // Calculate slope, intercept
-            float slope = Calc_Varrat_Slope(var_x, var_y);
-            float intercept = Avg_Targ - slope * Avg_Ref;
-            // Calculate LT_Est
-            float lt_ref_avg = Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, 0, 360);
-
-            LT_Varrat_Est = lt_ref_avg * slope + intercept;
-
-            return LT_Varrat_Est;
-        }
-
-        public void Do_Orthogonal_Regression()
-        {
-            // Orthogonal regression minimizes the distance between both the reference and target site wind speeds from the regression line
-
-            if (Conc_Data == null) Find_Concurrent_Data(true, Conc_Start, Conc_End);
-
-            // Calculate the orthogonal regression for each WD and overall
+            // Calculate the regression for each WD and overall
             // To calculate the slope and intercept, need the variance of Y and X and the co-variance of X and Y
 
             // First calculate for all WD sectors
@@ -905,71 +594,268 @@ namespace MCP
             float[] Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
             float[] Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
 
-            float var_x = Convert.ToSingle(Calc_Variance(Ref_WS));
-            float var_y = Convert.ToSingle(Calc_Variance(Target_WS));
-            float covar_xy = Convert.ToSingle(Calc_Covariance(Ref_WS, Target_WS));
+            Stats Stat = new Stats();
+            float var_x = Convert.ToSingle(Stat.Calc_Variance(Ref_WS));
+            float var_y = Convert.ToSingle(Stat.Calc_Variance(Target_WS));
+            float covar_xy = Convert.ToSingle(Stat.Calc_Covariance(Ref_WS, Target_WS));
 
             int Num_WD = Get_Num_WD();
             int WD_ind = Get_WD_ind();
+            double WS_bin = Get_WS_width();
+            int Num_WS = (int)(30 / WS_bin);
 
-            Array.Resize(ref MCP_Ortho.Slope, Num_WD + 1); // Slope for each WD plus overall
-            Array.Resize(ref MCP_Ortho.Intercept, Num_WD + 1); // Intercept for each WD plus overall
-            Array.Resize(ref MCP_Ortho.R_sq, Num_WD + 1); // R_sq for each WD plus overall
-
-            MCP_Ortho.Slope[Num_WD] = Calc_Ortho_Slope(var_x, var_y, covar_xy);
+            Method_of_Bins Uncert_MCP = new Method_of_Bins();
+            Method_of_Bins These_Bins = new Method_of_Bins();
 
             float[] This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
             float Avg_Targ = This_Conc[0];
             float Avg_Ref = This_Conc[1];
 
-            MCP_Ortho.Intercept[Num_WD] = Avg_Targ - MCP_Ortho.Slope[Num_WD] * Avg_Ref;
-            MCP_Ortho.R_sq[Num_WD] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
+            float LT_WS_Est = 0; // if Use_All_Data is false then it is an uncertainty analysis and this value is returned
+            float This_Slope = 0;
+            float This_Int = 0;
+            int Total_Count = 0;
+            int Sector_Count = 0;
 
-            // Now calculate for all WD
-            for (int i = 0; i < Num_WD; i++)
+            try
             {
-                Min_WD = i * 360 / Num_WD - 360 / Num_WD / 2;
-                if (Min_WD < 0) Min_WD = Min_WD + 360;
-
-                Max_WD = i * 360 / Num_WD + 360 / Num_WD / 2;
-                if (Max_WD > 360) Max_WD = Max_WD - 360;
-
-                Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
-                Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
-
-                var_x = Convert.ToSingle(Calc_Variance(Ref_WS));
-                var_y = Convert.ToSingle(Calc_Variance(Target_WS));
-                covar_xy = Convert.ToSingle(Calc_Covariance(Ref_WS, Target_WS));
-
-                MCP_Ortho.Slope[i] = Calc_Ortho_Slope(var_x, var_y, covar_xy);
-
-                This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
-                Avg_Targ = This_Conc[0];
-                Avg_Ref = This_Conc[1];
-
-                MCP_Ortho.Intercept[i] = Avg_Targ - MCP_Ortho.Slope[i] * Avg_Ref;
-                MCP_Ortho.R_sq[i] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
-
+                Total_Count = Ref_WS.Length;
+            }
+            catch
+            {
+                return LT_WS_Est;
             }
 
+           // if this is not an uncertainty analysis, then calculate the slope, intercept and R^2 for all WD (this is not used in LT WS Estimation, just GUI)
+            if (Use_All_Data == true && MCP_Method == "Orth. Regression")
+            {
+                MCP_Ortho.Clear();
+                Array.Resize(ref MCP_Ortho.Slope, Num_WD + 1); // Slope for each WD plus overall
+                Array.Resize(ref MCP_Ortho.Intercept, Num_WD + 1); // Intercept for each WD plus overall
+                Array.Resize(ref MCP_Ortho.R_sq, Num_WD + 1); // R_sq for each WD plus overall
+
+                MCP_Ortho.Slope[Num_WD] = Calc_Ortho_Slope(var_x, var_y, covar_xy);
+                MCP_Ortho.Intercept[Num_WD] = Avg_Targ - MCP_Ortho.Slope[Num_WD] * Avg_Ref;
+                MCP_Ortho.R_sq[Num_WD] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
+            }
+            else if (Use_All_Data == true && MCP_Method == "Variance Ratio") 
+            {
+                MCP_Varrat.Clear();
+                Array.Resize(ref MCP_Varrat.Slope, Num_WD + 1); // Slope for each WD plus overall
+                Array.Resize(ref MCP_Varrat.Intercept, Num_WD + 1); // Intercept for each WD plus overall
+                Array.Resize(ref MCP_Varrat.R_sq, Num_WD + 1); // R_sq for each WD plus overall
+
+                MCP_Varrat.Slope[Num_WD] = Calc_Varrat_Slope(var_x, var_y);
+                MCP_Varrat.Intercept[Num_WD] = Avg_Targ - MCP_Varrat.Slope[Num_WD] * Avg_Ref;
+                MCP_Varrat.R_sq[Num_WD] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
+            }
+            else if (Use_All_Data == true && MCP_Method == "Method of Bins")
+            {
+                MCP_Bins.Clear();
+                MCP_Bins.Bin_Avg_SD_Cnt = new Bin_Object[Num_WS, Num_WD + 1]; // WD_ind = Num_WD is overall ratio
+            }
+            
+            // Now calculate for all WD
+            if (MCP_Method == "Orth. Regression" || MCP_Method == "Variance Ratio")
+            {
+                for (int i = 0; i < Num_WD; i++)
+                {
+
+                    if (Num_WD == 1)
+                    {
+                        Min_WD = 0;
+                        Max_WD = 360;
+                    }
+                    else
+                    {
+                        Min_WD = i * 360 / Num_WD - 360 / Num_WD / 2;
+                        if (Min_WD < 0) Min_WD = Min_WD + 360;
+
+                        Max_WD = i * 360 / Num_WD + 360 / Num_WD / 2;
+                        if (Max_WD > 360) Max_WD = Max_WD - 360;
+                    }
+
+                    
+
+                    Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
+                    Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
+
+                    try
+                    {
+                        Sector_Count = Ref_WS.Length;
+                    }
+                    catch
+                    {
+                        Sector_Count = 0;
+                    }
+
+                    var_x = Convert.ToSingle(Stat.Calc_Variance(Ref_WS));
+                    var_y = Convert.ToSingle(Stat.Calc_Variance(Target_WS));
+                    covar_xy = Convert.ToSingle(Stat.Calc_Covariance(Ref_WS, Target_WS));
+
+                    This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
+                    Avg_Targ = This_Conc[0];
+                    Avg_Ref = This_Conc[1];
+
+                    if (MCP_Method == "Orth. Regression")
+                        This_Slope = Calc_Ortho_Slope(var_x, var_y, covar_xy);
+                    else
+                        This_Slope = Calc_Varrat_Slope(var_x, var_y);
+
+                    This_Int = Avg_Targ - This_Slope * Avg_Ref;
+
+                    if (Use_All_Data == true)
+                    {
+                        if (MCP_Method == "Orth. Regression")
+                        {
+                            MCP_Ortho.Slope[i] = This_Slope;
+                            MCP_Ortho.Intercept[i] = This_Int;
+                            MCP_Ortho.R_sq[i] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
+                        }
+                        else // if more linear models are added, will need to add another else if
+                        {
+                            MCP_Varrat.Slope[i] = This_Slope;
+                            MCP_Varrat.Intercept[i] = This_Int;
+                            MCP_Varrat.R_sq[i] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
+                        }
+                    }
+
+                    Avg_Ref = Stat.Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                    
+                    if (Double.IsNaN(This_Slope) == false) LT_WS_Est = LT_WS_Est + (Avg_Ref * This_Slope + This_Int) * ((float)Sector_Count / (float)Total_Count);
+                }
+            }
+            else // Method of Bins
+            {
+
+                if (Use_All_Data)
+                    These_Bins = MCP_Bins;
+                else
+                {
+                    Uncert_MCP.Bin_Avg_SD_Cnt = new Bin_Object[Num_WS, Num_WD + 1]; // WD_ind = Num_WD is overall ratio
+                    These_Bins = Uncert_MCP;
+                }
+
+                foreach (Concurrent_data These_Conc in Conc_Data)
+                {
+                    int WS_ind = Convert.ToInt32(Math.Round(These_Conc.Ref_WS / WS_bin_width, 0));
+                    if (WS_ind > Num_WS) WS_ind = Num_WS - 1;
+
+                    WD_ind = Convert.ToInt32(These_Conc.Ref_WD / (360 / Num_WD));
+                    if (WD_ind == Num_WD) WD_ind = 0;
+
+                    // Directional ratios
+                    These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind].Avg_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind].Avg_WS_Ratio + These_Conc.Target_WS / These_Conc.Ref_WS;
+                    These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind].SD_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind].SD_WS_Ratio + (float)Math.Pow(These_Conc.Target_WS / These_Conc.Ref_WS, 2);
+                    These_Bins.Bin_Avg_SD_Cnt[WS_ind, WD_ind].Count++;
+
+                    // Overall ratios (all WD)
+                    These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].Avg_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].Avg_WS_Ratio + These_Conc.Target_WS / These_Conc.Ref_WS;
+                    These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].SD_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].SD_WS_Ratio + (float)Math.Pow(These_Conc.Target_WS / These_Conc.Ref_WS, 2);
+                    These_Bins.Bin_Avg_SD_Cnt[WS_ind, Num_WD].Count++;
+                    
+                }
+
+                for (int i = 0; i < Num_WS; i++)
+                    for (int j = 0; j <= Num_WD; j++)
+                    {
+                        if (These_Bins.Bin_Avg_SD_Cnt[i, j].Count > 0)
+                        {
+                            These_Bins.Bin_Avg_SD_Cnt[i, j].Avg_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[i, j].Avg_WS_Ratio / These_Bins.Bin_Avg_SD_Cnt[i, j].Count;
+                            These_Bins.Bin_Avg_SD_Cnt[i, j].SD_WS_Ratio = These_Bins.Bin_Avg_SD_Cnt[i, j].SD_WS_Ratio / These_Bins.Bin_Avg_SD_Cnt[i, j].Count -
+                                    (float)Math.Pow(These_Bins.Bin_Avg_SD_Cnt[i, j].Avg_WS_Ratio, 2);
+                            }
+                    }
+                                   
+
+            }
+            
+            if (Use_All_Data == false && MCP_Method != "Method of Bins") // if conducting uncertainty analysis (with a linear model) then return the LT value
+                return LT_WS_Est;
+
             Update_plot();
+            Update_Bin_List();
 
             // Estimate time series at target site
-            Array.Resize(ref MCP_Ortho.LT_WS_Est, Ref_Data.Length);
+            if (MCP_Method == "Orth. Regression") Array.Resize(ref MCP_Ortho.LT_WS_Est, Ref_Data.Length);
+            if (MCP_Method == "Variance Ratio") Array.Resize(ref MCP_Varrat.LT_WS_Est, Ref_Data.Length);
+            if (MCP_Method == "Method of Bins") Array.Resize(ref These_Bins.LT_WS_Est, Ref_Data.Length);
 
             for (int i = 0; i < Ref_Data.Length; i++)
             {
                 int This_WD_ind = Convert.ToInt32(Ref_Data[i].This_WD * Num_WD / 360);
                 if (This_WD_ind == Num_WD) This_WD_ind = 0;
+                int WS_ind = Convert.ToInt32(Math.Round(Ref_Data[i].This_WS /  WS_bin_width, 0));
 
-                MCP_Ortho.LT_WS_Est[i].This_Date = Ref_Data[i].This_Date;
-                MCP_Ortho.LT_WS_Est[i].This_WD = Ref_Data[i].This_WD;
-                MCP_Ortho.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * MCP_Ortho.Slope[This_WD_ind] + MCP_Ortho.Intercept[This_WD_ind];
+                if (MCP_Method == "Orth. Regression")
+                {
+                    MCP_Ortho.LT_WS_Est[i].This_Date = Ref_Data[i].This_Date;
+                    MCP_Ortho.LT_WS_Est[i].This_WD = Ref_Data[i].This_WD;
+                    MCP_Ortho.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * MCP_Ortho.Slope[This_WD_ind] + MCP_Ortho.Intercept[This_WD_ind];
+                }
+                else if (MCP_Method == "Variance Ratio")
+                {
+                    MCP_Varrat.LT_WS_Est[i].This_Date = Ref_Data[i].This_Date;
+                    MCP_Varrat.LT_WS_Est[i].This_WD = Ref_Data[i].This_WD;
+                    MCP_Varrat.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * MCP_Varrat.Slope[This_WD_ind] + MCP_Varrat.Intercept[This_WD_ind];
 
+                }
+                else if (MCP_Method == "Method of Bins")
+                {
+                    These_Bins.LT_WS_Est[i].This_Date = Ref_Data[i].This_Date;
+                    if (These_Bins.Bin_Avg_SD_Cnt[WS_ind, This_WD_ind].Avg_WS_Ratio > 0)
+                        These_Bins.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * These_Bins.Bin_Avg_SD_Cnt[WS_ind, This_WD_ind].Avg_WS_Ratio;
+                    else
+                    {
+                        // there was no data for this bin so find the two closest ratios and use average of two
+                        float Avg_Ratio = 0;
+                        int Avg_Ratio_count = 0;
+                        int Minus_Ind = WS_ind;
+                        int Plus_Ind = WS_ind;
+                        int count_while = 0;
+
+                        while (Avg_Ratio_count < 2 && (Minus_Ind != 0 || Plus_Ind != Num_WS))
+                        {
+                            if (Minus_Ind > 0) Minus_Ind--;
+                            if (Plus_Ind < (Num_WS - 1)) Plus_Ind++;
+
+                            if (These_Bins.Bin_Avg_SD_Cnt[Minus_Ind, This_WD_ind].Avg_WS_Ratio > 0)
+                            {
+                                Avg_Ratio = Avg_Ratio + These_Bins.Bin_Avg_SD_Cnt[Minus_Ind, This_WD_ind].Avg_WS_Ratio;
+                                Avg_Ratio_count++;
+                            }
+
+                            if (These_Bins.Bin_Avg_SD_Cnt[Plus_Ind, This_WD_ind].Avg_WS_Ratio > 0)
+                            {
+                                Avg_Ratio = Avg_Ratio + These_Bins.Bin_Avg_SD_Cnt[Plus_Ind, This_WD_ind].Avg_WS_Ratio;
+                                Avg_Ratio_count++;
+                            }
+                            count_while++;
+                            if (count_while > 30)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (Avg_Ratio_count > 0) Avg_Ratio = Avg_Ratio / Avg_Ratio_count;
+                        These_Bins.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * Avg_Ratio;
+                    }
+                    These_Bins.LT_WS_Est[i].This_WD = Ref_Data[i].This_WD;
+
+                }
+                
             }
 
+            if (MCP_Method == "Method of Bins" && Use_All_Data == true)
+                MCP_Bins = These_Bins;
+            else if (MCP_Method == "Method of Bins")
+                LT_WS_Est = Stat.Calc_Avg_WS(These_Bins.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+            
+            
             Update_Text_boxes();
+            Update_Export_buttons();
 
+            return LT_WS_Est;
         }
 
         public void Do_Method_of_Bins()
@@ -979,13 +865,13 @@ namespace MCP
             // data to estimate the long-term wind speed at the target site
 
             int Num_WD = Get_Num_WD();
-            int WS_bin = Get_WS_width();
-            int Num_WS = 30 / WS_bin;
+            double WS_bin = Get_WS_width();
+            int Num_WS = (int)(30 / WS_bin);
 
             MCP_Bins.Bin_Avg_SD_Cnt = new Bin_Object[Num_WS, Num_WD + 1]; // WD_ind = Num_WD is overall ratio
 
             // Go through all concurrent data and calculate average, SD and count of WS ratio for each WD and WS bin
-            if (Conc_Data == null) Find_Concurrent_Data(true, Conc_Start, Conc_End);
+            if (Conc_Data.Length == 0) Find_Concurrent_Data(true, Conc_Start, Conc_End);
 
             foreach (Concurrent_data These_Conc in Conc_Data)
             {
@@ -1042,7 +928,7 @@ namespace MCP
                     int Plus_Ind = WS_ind;
                     int count_while = 0;
 
-                    while (Avg_Ratio_count < 2 & (Minus_Ind != 0 | Plus_Ind != Num_WS))
+                    while (Avg_Ratio_count < 2 && (Minus_Ind != 0 || Plus_Ind != Num_WS))
                     {
                         if (Minus_Ind > 0) Minus_Ind--;
                         if (Plus_Ind < (Num_WS - 1)) Plus_Ind++;
@@ -1076,89 +962,7 @@ namespace MCP
             Update_Bin_List();
 
         }
-
-        public void Do_Variance_Ratio()
-        {
-            // Variance Ratio predicts the wind speed at the target site using mean and variation data from both target and reference sites
-
-            if (Conc_Data == null) Find_Concurrent_Data(true, Conc_Start, Conc_End);
-            // if (Conc_Data == null) // to do: what is C# equivalent of Exit Sub?
-
-            // Calculate the Variance Ratio for each WD and overall
-            // To calculate the slope and intercept, need the variances of Y and X and the averages of X and Y
-
-            // First calculate for all WD sectors
-            float Min_WD = 0;
-            float Max_WD = 360;
-            float[] Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
-            float[] Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
-
-            float var_x = Convert.ToSingle(Calc_Variance(Ref_WS));
-            float var_y = Convert.ToSingle(Calc_Variance(Target_WS));
-            float covar_xy = Convert.ToSingle(Calc_Covariance(Ref_WS, Target_WS));
-
-            int Num_WD = Get_Num_WD();
-            int WD_ind = Get_WD_ind();
-
-            Array.Resize(ref MCP_Varrat.Slope, Num_WD + 1); // Slope for each WD plus overall
-            Array.Resize(ref MCP_Varrat.Intercept, Num_WD + 1); // Intercept for each WD plus overall
-            Array.Resize(ref MCP_Varrat.R_sq, Num_WD + 1); // R_sq for each WD plus overall
-
-            MCP_Varrat.Slope[Num_WD] = Calc_Varrat_Slope(var_x, var_y);
-
-            float[] This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
-            float Avg_Targ = This_Conc[0];
-            float Avg_Ref = This_Conc[1];
-
-            MCP_Varrat.Intercept[Num_WD] = Avg_Targ - MCP_Varrat.Slope[Num_WD] * Avg_Ref;
-            MCP_Varrat.R_sq[Num_WD] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
-
-            // Now calculate for all WD
-            for (int i = 0; i < Num_WD; i++)
-            {
-                Min_WD = i * 360 / Num_WD - 360 / Num_WD / 2;
-                if (Min_WD < 0) Min_WD = Min_WD + 360;
-
-                Max_WD = i * 360 / Num_WD + 360 / Num_WD / 2;
-                if (Max_WD > 360) Max_WD = Max_WD - 360;
-
-                Ref_WS = Get_Conc_WS_Array("Reference", Min_WD, Max_WD);
-                Target_WS = Get_Conc_WS_Array("Target", Min_WD, Max_WD);
-
-                var_x = Convert.ToSingle(Calc_Variance(Ref_WS));
-                var_y = Convert.ToSingle(Calc_Variance(Target_WS));
-                covar_xy = Convert.ToSingle(Calc_Covariance(Ref_WS, Target_WS));
-
-                MCP_Varrat.Slope[i] = Calc_Varrat_Slope(var_x, var_y);
-
-                This_Conc = Get_Conc_Avgs_Count(Min_WD, Max_WD);
-                Avg_Targ = This_Conc[0];
-                Avg_Ref = This_Conc[1];
-
-                MCP_Varrat.Intercept[i] = Avg_Targ - MCP_Varrat.Slope[Num_WD] * Avg_Ref;
-                MCP_Varrat.R_sq[Num_WD] = (float)Math.Pow(covar_xy / (float)Math.Pow(var_x, 0.5) / (float)Math.Pow(var_y, 0.5), 2);
-            }
-
-            Update_plot();
-
-            // Estimate time series at target site
-            Array.Resize(ref MCP_Varrat.LT_WS_Est, Ref_Data.Length);
-
-            for (int i = 0; i < Ref_Data.Length; i++)
-            {
-                int This_WD_ind = Convert.ToInt32(Ref_Data[i].This_WD * Num_WD / 360);
-                if (This_WD_ind == Num_WD) This_WD_ind = 0;
-
-                MCP_Varrat.LT_WS_Est[i].This_Date = Ref_Data[i].This_Date;
-                MCP_Varrat.LT_WS_Est[i].This_WD = Ref_Data[i].This_WD;
-                MCP_Varrat.LT_WS_Est[i].This_WS = Ref_Data[i].This_WS * MCP_Varrat.Slope[This_WD_ind] + MCP_Varrat.Intercept[This_WD_ind];
-
-            }
-
-            Update_Text_boxes();
-
-        }
-
+          
         public float Calc_Ortho_Slope(float var_x, float var_y, float covar_xy)
         {
             // Calculates and returns slope of orthogonal regression
@@ -1243,10 +1047,10 @@ namespace MCP
                     Max_WD = Max_WD - 360;
             }
 
-
+            Stats Stat = new Stats();
             if (Got_Ref)
             {
-                Avg_Ref = Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                Avg_Ref = Stat.Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
                 txtRef_LT_WS.Text = Convert.ToString(Math.Round(Avg_Ref, 2));
             }
             else
@@ -1281,7 +1085,14 @@ namespace MCP
                 txtOIntercept.Text = Convert.ToString(Math.Round(Intercept, 3));
                 txtORsq.Text = Convert.ToString(Math.Round(Rsq, 3));
             }
-            else if (MCP_Varrat.LT_WS_Est != null)
+            else
+            {
+                txtOSlope.Text = "";
+                txtOIntercept.Text = "";
+                txtORsq.Text = "";
+            }
+
+            if (MCP_Varrat.LT_WS_Est != null)
             {
                 float Slope = MCP_Varrat.Slope[WD_ind];
                 float Intercept = MCP_Varrat.Intercept[WD_ind];
@@ -1292,34 +1103,31 @@ namespace MCP
             }
             else
             {
-                txtOSlope.Text = "";
-                txtOIntercept.Text = "";
-                txtORsq.Text = "";
                 txtVSlope.Text = "";
                 txtVIntercept.Text = "";
                 txtVRsq.Text = "";
             }
 
-            if (MCP_Ortho.LT_WS_Est != null & (Get_MCP_Method() == "Orth. Regression"))
+            if (MCP_Ortho.LT_WS_Est != null && (Get_MCP_Method() == "Orth. Regression"))
             {
-                Avg_Ref = Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
-                float Avg_Target_LT = Calc_Avg_WS(MCP_Ortho.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                Avg_Ref = Stat.Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                float Avg_Target_LT = Stat.Calc_Avg_WS(MCP_Ortho.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
                 float Avg_Ratio = Avg_Target_LT / Avg_Ref;
                 txtTarg_LT_WS.Text = Convert.ToString(Math.Round(Avg_Target_LT, 2));
                 txtLTratio.Text = Convert.ToString(Math.Round(Avg_Ratio, 2));
             }
-            else if (MCP_Varrat.LT_WS_Est != null & (Get_MCP_Method() == "Variance Ratio"))
+            else if (MCP_Varrat.LT_WS_Est != null && (Get_MCP_Method() == "Variance Ratio"))
             {
-                Avg_Ref = Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
-                float Avg_Target_LT = Calc_Avg_WS(MCP_Varrat.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                Avg_Ref = Stat.Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                float Avg_Target_LT = Stat.Calc_Avg_WS(MCP_Varrat.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
                 float Avg_Ratio = Avg_Target_LT / Avg_Ref;
                 txtTarg_LT_WS.Text = Convert.ToString(Math.Round(Avg_Target_LT, 2));
                 txtLTratio.Text = Convert.ToString(Math.Round(Avg_Ratio, 2));
             }
-            else if (MCP_Bins.LT_WS_Est != null & (Get_MCP_Method() == "Method of Bins"))
+            else if (MCP_Bins.LT_WS_Est != null && (Get_MCP_Method() == "Method of Bins"))
             {
-                Avg_Ref = Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
-                float Avg_Target_LT = Calc_Avg_WS(MCP_Bins.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                Avg_Ref = Stat.Calc_Avg_WS(Ref_Data, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
+                float Avg_Target_LT = Stat.Calc_Avg_WS(MCP_Bins.LT_WS_Est, 0, 30, Ref_Start, Ref_End, Min_WD, Max_WD);
                 float Avg_Ratio = Avg_Target_LT / Avg_Ref;
                 txtTarg_LT_WS.Text = Convert.ToString(Math.Round(Avg_Target_LT, 2));
                 txtLTratio.Text = Convert.ToString(Math.Round(Avg_Ratio, 2));
@@ -1336,12 +1144,12 @@ namespace MCP
         {
             // updates calendar dates for concurrent period used in MCP and dates used in export
 
-            if (Got_Conc & date_Corr_Start.Value != Conc_Start)
+            if (Got_Conc && (date_Corr_Start.Value != Conc_Start))
             {
                 date_Corr_Start.Value = Conc_Start;
             }
 
-            if (Got_Conc & date_Corr_End.Value != Conc_End)
+            if (Got_Conc && (date_Corr_End.Value != Conc_End))
             {
                 date_Corr_End.Value = Conc_End;
             }
@@ -1352,6 +1160,91 @@ namespace MCP
                 date_Export_Start.Value = Export_Start;
                 date_Export_End.Value = Export_End;
             }
+        }
+
+        public void Reset_Export_Dates()
+        {
+            if (Ref_Data.Length > 0)
+            {
+                date_Export_Start.Value = Ref_Start;
+                date_Export_End.Value = Ref_End;
+            }
+        }
+
+        public void Set_Conc_Dates_On_Form()
+        {
+            // Find start and end dates of full concurrent period and updates the form dates
+
+            if (Got_Targ != true || Got_Ref != true)
+                return;
+            
+                
+            Target_Start = Target_Data[0].This_Date;
+            Target_End = Target_Data[Target_Data.Length - 1].This_Date;
+
+            for (int i = 0; i < Target_Data.Length - 1; i++)
+            {
+                if (Target_Data[i].This_Date < Target_Start)
+                    Target_Start = Target_Data[i].This_Date;
+
+                if (Target_Data[i].This_Date > Target_End)
+                    Target_End = Target_Data[i].This_Date;
+            }
+
+            if (Target_Start > Ref_Start)
+                date_Corr_Start.Value = Target_Start;
+            else
+                date_Corr_Start.Value = Ref_Start;
+
+            if (Target_End < Ref_End)
+                date_Corr_End.Value = Target_End;
+            else
+                date_Corr_End.Value = Ref_End;
+                       
+        }
+
+        public void Update_WD_DropDown()
+        {
+            cboWD_sector.Items.Clear();
+
+            int Num_WD = Get_Num_WD();
+
+            if (Num_WD > 1)
+                for (int i = 0; i < Num_WD; i++)
+                    cboWD_sector.Items.Add(i * 360 / Num_WD);
+
+            cboWD_sector.Items.Add("All WD");
+            cboWD_sector.SelectedIndex = cboWD_sector.Items.Count-1;
+
+        }
+
+        public void Update_Export_buttons()
+        {
+
+            // Enables or Disables export buttons based on what analysis has been done
+            if ((Get_MCP_Method() == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null) || (Get_MCP_Method() == "Method of Bins" && MCP_Bins.LT_WS_Est != null) || (Get_MCP_Method() == "Variance Ratio" && MCP_Varrat.LT_WS_Est != null))
+            {
+                btnExportTS.Enabled = true;
+                btnExportTAB.Enabled = true;
+            }
+            else
+            {
+                btnExportTS.Enabled = false;
+                btnExportTAB.Enabled = false;
+            }
+
+            if (Get_MCP_Method() == "Method of Bins" && MCP_Bins.LT_WS_Est != null)
+                btnExportBinRatios.Enabled = true;
+            else
+                btnExportBinRatios.Enabled = false;
+
+            if ((Get_MCP_Method() == "Orth. Regression" && Uncert_Ortho.Length > 0) || (Get_MCP_Method() == "Method of Bins" && Uncert_Bins.Length > 0) || (Get_MCP_Method() == "Variance Ratio" && Uncert_Varrat.Length > 0))
+                btnExportMultitest.Enabled = true;
+            else
+                btnExportMultitest.Enabled = false;
+                           
+
+
         }
 
         public void Update_plot()
@@ -1398,7 +1291,7 @@ namespace MCP
                         chtScatter.Series["Concurrent data"].Points.AddXY(This_Ref_WS[i], This_Targ_WS[i]);
                 }
 
-                if (MCP_Ortho.Slope != null & Get_MCP_Method() == "Orth. Regression")
+                if ((MCP_Ortho.Slope != null) && (Get_MCP_Method() == "Orth. Regression"))
                 {
 
                     chtScatter.Series.Add("Ortho. Reg.");
@@ -1423,7 +1316,7 @@ namespace MCP
                     }
                 }
 
-                else if (MCP_Varrat.Slope != null & Get_MCP_Method() == "Variance Ratio")
+                else if ((MCP_Varrat.Slope != null) && (Get_MCP_Method() == "Variance Ratio"))
                 {
 
                     chtScatter.Series.Add("Variance Ratio");
@@ -1447,7 +1340,7 @@ namespace MCP
                         chtScatter.Series["Variance Ratio"].Points.AddXY(Varrat_X[i], Varrat_Y[i]);
                     }
                 }
-                else if (MCP_Bins.Bin_Avg_SD_Cnt != null & Get_MCP_Method() == "Method of Bins")
+                else if ((MCP_Bins.Bin_Avg_SD_Cnt != null) && (Get_MCP_Method() == "Method of Bins"))
                 {
                     chtScatter.Series.Add("Method of Bins");
                     chtScatter.Series["Method of Bins"].ChartType = SeriesChartType.Point;
@@ -1478,7 +1371,7 @@ namespace MCP
                 int Num_WS = MCP_Bins.Bin_Avg_SD_Cnt.GetUpperBound(0);
                 int Num_WD = Get_Num_WD();
                 int WD_ind = Get_WD_ind();
-                int WS_Width = Get_WS_width();
+                float WS_Width = Get_WS_width();
 
                 for (int i = 0; i < Num_WS; i++)
                 {
@@ -1503,12 +1396,12 @@ namespace MCP
             // Get Active MCP type
             string active_method = Get_MCP_Method();
 
-            if (active_method == "Orth. Regression" & Uncert_Ortho != null)
+            if ((active_method == "Orth. Regression") && (Uncert_Ortho.Length > 0))
             {
                 for (int u = 0; u < Uncert_Ortho.Length; u++)
                 {
                     // Assign LT Avg series = Avg of Uncert obj
-                    if (Uncert_Ortho[u].avg != 0 & Uncert_Ortho[u].std_dev != 0)
+                    if ((Uncert_Ortho[u].avg != 0) && (Uncert_Ortho[u].std_dev != 0))
                     {
                         objlist = lstUncert.Items.Add(Convert.ToString(Uncert_Ortho[u].WSize));
                         objlist.SubItems.Add(Convert.ToString(Math.Round(Uncert_Ortho[u].avg, 2)));
@@ -1516,12 +1409,12 @@ namespace MCP
                     }
                 }
             }
-            if (active_method == "Method of Bins" & Uncert_Bins != null)
+            if ((active_method == "Method of Bins") && (Uncert_Bins.Length > 0))
             {
                 for (int u = 0; u < Uncert_Bins.Length; u++)
                 {
                     // Assign LT Avg series = Avg of Uncert obj
-                    if (Uncert_Bins[u].avg != 0 & Uncert_Bins[u].std_dev != 0)
+                    if ((Uncert_Bins[u].avg != 0) && (Uncert_Bins[u].std_dev != 0))
                     {
                         objlist = lstUncert.Items.Add(Convert.ToString(Uncert_Bins[u].WSize));
                         objlist.SubItems.Add(Convert.ToString(Math.Round(Uncert_Bins[u].avg, 2)));
@@ -1529,12 +1422,12 @@ namespace MCP
                     }
                 }
             }
-            if (active_method == "Variance Ratio" & Uncert_Varrat != null)
+            if ((active_method == "Variance Ratio") && (Uncert_Varrat.Length > 0))
             {
                 for (int u = 0; u < Uncert_Varrat.Length; u++)
                 {
                     // Assign LT Avg series = Avg of Uncert obj
-                    if (Uncert_Varrat[u].avg != 0 & Uncert_Varrat[u].std_dev != 0)
+                    if ((Uncert_Varrat[u].avg != 0) && (Uncert_Varrat[u].std_dev != 0))
                     {
                         objlist = lstUncert.Items.Add(Convert.ToString(Uncert_Varrat[u].WSize));
                         objlist.SubItems.Add(Convert.ToString(Math.Round(Uncert_Varrat[u].avg, 2)));
@@ -1547,22 +1440,16 @@ namespace MCP
         private void cboNumWD_SelectedIndexChanged(object sender, EventArgs e)
         {
             // update WD sector drop-down
-            if ((MCP_Ortho.Slope == null) & (MCP_Varrat.Slope == null) & (MCP_Bins.Bin_Avg_SD_Cnt == null))
+            if ((MCP_Ortho.Slope == null) && (MCP_Varrat.Slope == null) && (MCP_Bins.Bin_Avg_SD_Cnt == null))
             {
-                cboWD_sector.Items.Clear();
-
-                int Num_WD = Get_Num_WD();
-
-                for (int i = 0; i < Num_WD; i++)
-                    cboWD_sector.Items.Add(i * 360 / Num_WD);
-
-                cboWD_sector.Items.Add("All WD");
+                Num_WD_Sectors = Convert.ToInt16(cboNumWD.SelectedItem.ToString());
+                Update_WD_DropDown();
             }
-            else if ((MCP_Ortho.Slope != null) | (MCP_Varrat.Slope != null) | (MCP_Bins.Bin_Avg_SD_Cnt != null))
+            else if ((Is_Newly_Opened_File == false) && ((MCP_Ortho.Slope != null) || (MCP_Varrat.Slope != null) || (MCP_Bins.Bin_Avg_SD_Cnt != null) || (Uncert_Ortho.Length > 0) || (Uncert_Varrat.Length > 0) || (Uncert_Bins.Length > 0)))
             {
-                bool show_msg = false;
-
-                if (MCP_Ortho.Slope != null)
+                bool show_msg = true;
+            
+             /*   if (MCP_Ortho.Slope != null)
                     if (MCP_Ortho.Slope.Length - 1 != Get_Num_WD())
                         show_msg = true;
 
@@ -1573,78 +1460,45 @@ namespace MCP
                 if (MCP_Bins.Bin_Avg_SD_Cnt != null)
                     if (MCP_Bins.Bin_Avg_SD_Cnt.GetUpperBound(1) - 1 != Get_Num_WD())
                         show_msg = true;
+                        */
 
                 if (show_msg == true)
                 {
                     string message = "Changing the number of WD bins will reset the MCP. Do you want to continue?";
-                    MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                    DialogResult result;
-
-                    result = MessageBox.Show(message, "", buttons);
+                    
+                    DialogResult result = MessageBox.Show(message, "", MessageBoxButtons.YesNo);
 
                     if (result == System.Windows.Forms.DialogResult.Yes)
                     {
-                        cboWD_sector.Items.Clear();
+                        
 
-                        int Num_WD = Get_Num_WD();
-
-                        for (int i = 0; i < Num_WD; i++)
-                            cboWD_sector.Items.Add(i * 360 / Num_WD);
-
-                        cboWD_sector.Items.Add("All WD");
-
-                        Conc_Data = null;
+                        Conc_Data = new Concurrent_data[0];
                         MCP_Ortho.Clear();
                         MCP_Bins.Clear();
                         MCP_Varrat.Clear();
-                        if (Uncert_Ortho != null)
-                        {
-                            for (int u = 0; u < Uncert_Ortho.Length; u++)
-                            {
-                                Uncert_Ortho[u].Clear();
-                            }
-                        }
-                        if (Uncert_Bins != null)
-                        {
-                            for (int u = 0; u < Uncert_Varrat.Length; u++)
-                            {
-                                Uncert_Bins[u].Clear();
-                            }
-                        }
-                        if (Uncert_Varrat != null)
-                        {
-                            for (int u = 0; u < Uncert_Varrat.Length; u++)
-                            {
-                                Uncert_Varrat[u].Clear();
-                            }
-                        }
+
+                        Uncert_Ortho = new MCP_Uncert[0];
+                        Uncert_Bins = new MCP_Uncert[0];
+                        Uncert_Varrat = new MCP_Uncert[0];
+                                                
                         Conc_Start = date_Corr_Start.Value;
                         Got_Conc = false;
                         btnRunMCP.Enabled = true;
                         btnMCP_Uncert.Enabled = true;
+
+                        Num_WD_Sectors = Convert.ToInt16(cboNumWD.SelectedItem.ToString());
+                        Update_WD_DropDown();
                         Update_Text_boxes();
                         Update_Bin_List();
                         Update_Uncert_List();
                         Update_plot();
                         Update_Uncert_plot();
+                        Update_Export_buttons();
                     }
                     else
                     {
-                        int Last_Num_WD = 0;
-                        if (MCP_Bins.Bin_Avg_SD_Cnt != null)
-                        {
-                            Last_Num_WD = MCP_Bins.Bin_Avg_SD_Cnt.GetUpperBound(1) - 1;
-                        }
-                        else if (MCP_Ortho.Slope != null)
-                        {
-                            Last_Num_WD = MCP_Ortho.Slope.Length - 1;
-                            cboNumWD.Text = Last_Num_WD.ToString();
-                        }
-                        else if (MCP_Varrat.Slope != null)
-                        {
-                            Last_Num_WD = MCP_Varrat.Slope.Length - 1;
-                            cboNumWD.Text = Last_Num_WD.ToString();
-                        }
+                        cboNumWD.Text = Num_WD_Sectors.ToString();
+                        
                     }
                 }
             }
@@ -1663,51 +1517,16 @@ namespace MCP
 
             if (result == System.Windows.Forms.DialogResult.Yes)
             {
-                Ref_Data = null;
-                txtLoadedReference.Clear();
-                Got_Ref = false;
-                Conc_Data = null;
-                Got_Conc = false;
-                MCP_Ortho.Clear();
-                MCP_Bins.Clear();
-                MCP_Varrat.Clear();
-                if (Uncert_Ortho != null)
-                {
-                    for (int u = 0; u < Uncert_Ortho.Length; u++)
-                    {
-                        Uncert_Ortho[u].Clear();
-                    }
-                }
-                if (Uncert_Bins != null)
-                {
-                    for (int u = 0; u < Uncert_Varrat.Length; u++)
-                    {
-                        Uncert_Bins[u].Clear();
-                    }
-                }
-                if (Uncert_Varrat != null)
-                {
-                    for (int u = 0; u < Uncert_Varrat.Length; u++)
-                    {
-                        Uncert_Varrat[u].Clear();
-                    }
-                }
-                Update_plot();
-                Update_Uncert_plot();
-                Update_Text_boxes();
-                btnRunMCP.Enabled = true;
-                btnMCP_Uncert.Enabled = true;
-                Update_Bin_List();
-                Update_Uncert_List();
-
+                New_MCP(true, false);
             }
 
+            Changes_Made();
 
         }
 
         private void btnClearTarget_Click(object sender, EventArgs e)
         {
-            if (Target_Data != null)
+            if (Target_Data.Length > 0)
             {
                 string message = "Are you sure that you want to clear the target data?";
                 string caption = "Clear Target Data";
@@ -1718,44 +1537,11 @@ namespace MCP
 
                 if (result == System.Windows.Forms.DialogResult.Yes)
                 {
-                    Target_Data = null;
-                    txtLoadedTarget.Clear();
-                    Got_Targ = false;
-                    Conc_Data = null;
-                    Got_Conc = false;
-                    MCP_Ortho.Clear();
-                    MCP_Bins.Clear();
-                    MCP_Varrat.Clear();
-                    if (Uncert_Ortho != null)
-                    {
-                        for (int u = 0; u < Uncert_Ortho.Length; u++)
-                        {
-                            Uncert_Ortho[u].Clear();
-                        }
-                    }
-                    if (Uncert_Bins != null)
-                    {
-                        for (int u = 0; u < Uncert_Varrat.Length; u++)
-                        {
-                            Uncert_Bins[u].Clear();
-                        }
-                    }
-                    if (Uncert_Varrat != null)
-                    {
-                        for (int u = 0; u < Uncert_Varrat.Length; u++)
-                        {
-                            Uncert_Varrat[u].Clear();
-                        }
-                    }
-                    btnRunMCP.Enabled = true;
-                    btnMCP_Uncert.Enabled = true;
-                    Update_plot();
-                    Update_Uncert_plot();
-                    Update_Bin_List();
-                    Update_Text_boxes();
-                    Update_Uncert_List();
+                    New_MCP(false, true);
                 }
             }
+
+            Changes_Made();
 
         }
 
@@ -1764,24 +1550,10 @@ namespace MCP
             // Read MCP method
             string MCP_method = Get_MCP_Method();
 
-            if (MCP_method == "Orth. Regression")
-            {
-                Do_Orthogonal_Regression();
-                btnRunMCP.Enabled = false;
-
-            }
-            else if (MCP_method == "Method of Bins")
-            {
-                Do_Method_of_Bins();
-                btnRunMCP.Enabled = false;
-
-            }
-            else if (MCP_method == "Variance Ratio")
-            {
-                Do_Variance_Ratio();
-                btnRunMCP.Enabled = false;
-
-            }
+            Do_MCP(Conc_Start, Conc_End, true, MCP_method);
+            btnRunMCP.Enabled = false;
+            Changes_Made();
+                        
         }
 
         private void cboWD_sector_SelectedIndexChanged(object sender, EventArgs e)
@@ -1797,36 +1569,38 @@ namespace MCP
         {
             DialogResult result = System.Windows.Forms.DialogResult.Yes;
 
-            if ((MCP_Ortho.Slope != null) | (MCP_Bins.Bin_Avg_SD_Cnt != null) | (MCP_Varrat.Slope != null))
+            if (((MCP_Ortho.Slope != null) || (MCP_Bins.Bin_Avg_SD_Cnt != null) || (MCP_Varrat.Slope != null)) && Is_Newly_Opened_File == false)
             {
                 string message = "Changing the start of the correlation will reset the MCP. Do you want to continue?";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
                 result = MessageBox.Show(message, "", buttons);
             }
 
-            if (result == System.Windows.Forms.DialogResult.Yes)
+            if (result == System.Windows.Forms.DialogResult.Yes && Is_Newly_Opened_File == false)
             {
-                Conc_Data = null;
+                Conc_Data = new Concurrent_data[0];
                 MCP_Ortho.Clear();
                 MCP_Bins.Clear();
                 MCP_Varrat.Clear();
                 Conc_Start = date_Corr_Start.Value;
                 Conc_End = date_Corr_End.Value;
-                if (Uncert_Ortho != null)
+                               
+
+                if (Uncert_Ortho.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Ortho.Length; u++)
                     {
                         Uncert_Ortho[u].Clear();
                     }
                 }
-                if (Uncert_Bins != null)
+                if (Uncert_Bins.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Varrat.Length; u++)
                     {
                         Uncert_Bins[u].Clear();
                     }
                 }
-                if (Uncert_Varrat != null)
+                if (Uncert_Varrat.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Varrat.Length; u++)
                     {
@@ -1841,47 +1615,47 @@ namespace MCP
                 Update_Uncert_List();
                 chtScatter.Series.Clear();
                 chtUncert.Series.Clear();
-
-
+                
             }
-
-
+            
+            
         }
 
         private void date_Corr_End_ValueChanged(object sender, EventArgs e)
         {
             DialogResult result = System.Windows.Forms.DialogResult.Yes;
 
-            if ((MCP_Ortho.Slope != null) | (MCP_Bins.Bin_Avg_SD_Cnt != null) | (MCP_Varrat.Slope != null))
+            if ((Is_Newly_Opened_File == false) && ((MCP_Ortho.Slope != null) || (MCP_Bins.Bin_Avg_SD_Cnt != null) || (MCP_Varrat.Slope != null)))
             {
                 string message = "Changing the start of the correlation will reset the MCP. Do you want to continue?";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
                 result = MessageBox.Show(message, "", buttons);
             }
 
-            if (result == System.Windows.Forms.DialogResult.Yes)
+            if (result == System.Windows.Forms.DialogResult.Yes && Is_Newly_Opened_File == false)
             {
-                Conc_Data = null;
+                Conc_Data = new Concurrent_data[0];
                 MCP_Ortho.Clear();
                 MCP_Bins.Clear();
                 MCP_Varrat.Clear();
                 Conc_Start = date_Corr_Start.Value;
                 Conc_End = date_Corr_End.Value;
-                if (Uncert_Ortho != null)
+                                
+                if (Uncert_Ortho.Length > 0)
                 {
                     for(int u = 0; u < Uncert_Ortho.Length; u++)
                     {
                         Uncert_Ortho[u].Clear();
                     }
                 }
-                if (Uncert_Bins != null)
+                if (Uncert_Bins.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Varrat.Length; u++)
                     {
                         Uncert_Bins[u].Clear();
                     }
                 }
-                if (Uncert_Varrat != null)
+                if (Uncert_Varrat.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Varrat.Length; u++)
                     {
@@ -1902,7 +1676,7 @@ namespace MCP
 
         private void date_Export_Start_ValueChanged(object sender, EventArgs e)
         {
-            if (date_Export_Start.Value > Ref_End)
+            if (date_Export_Start.Value > Ref_End && Is_Newly_Opened_File == false)
             {
                 MessageBox.Show("Export date cannot be later than the end of the reference site data.");
                 date_Export_Start.Value = Ref_Start;
@@ -1918,84 +1692,32 @@ namespace MCP
 
         private void cboMCP_Type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string MCP_type = Get_MCP_Method();
-
-            if (((MCP_type == "Orth. Regression") & (MCP_Ortho.Slope != null)) | ((MCP_type == "Method of Bins") & (MCP_Bins.Bin_Avg_SD_Cnt != null)) | ((MCP_type == "Variance Ratio") & (MCP_Varrat.Slope != null)))
-                btnRunMCP.Enabled = false;
-            else
-                btnRunMCP.Enabled = true;
-            if (MCP_type == "Orth. Regression" & Uncert_Ortho != null)
-            {
-                int off = 0;
-
-                for (int u = 0; u < Uncert_Ortho.Length; u++)
-                {
-                    if (Uncert_Ortho[u].LT_Ests != null)
-                    {
-                        off++;
-                    }
-                }
-                if (off == 0)
-                {
-                    btnMCP_Uncert.Enabled = true;
-                }
-                else
-                {
-                    btnMCP_Uncert.Enabled = false;
-                }
-            }
-            else if (MCP_type == "Method of Bins" & Uncert_Bins != null)
-            {
-                int off = 0;
-
-                for (int u = 0; u < Uncert_Bins.Length; u++)
-                {
-                    if (Uncert_Bins[u].LT_Ests != null)
-                    {
-                        off++;
-                    }
-                }
-                if (off == 0)
-                {
-                    btnMCP_Uncert.Enabled = true;
-                }
-                else
-                {
-                    btnMCP_Uncert.Enabled = false;
-                }
-            }
-            else if (MCP_type == "Variance Ratio" & Uncert_Varrat != null)
-            {
-                int off = 0;
-
-                for (int u = 0; u < Uncert_Varrat.Length; u++)
-                {
-                    if (Uncert_Varrat[u].LT_Ests != null)
-                    {
-                        off++;
-                    }
-                }
-                if (off == 0)
-                {
-                    btnMCP_Uncert.Enabled = true;
-                }
-                else
-                {
-                    btnMCP_Uncert.Enabled = false;
-                }
-            }
-            else
-            {
-                btnMCP_Uncert.Enabled = true;
-            }
-
-
+            Update_Run_Buttons();          
             Update_Bin_List();
             Update_plot();
             Update_Text_boxes();
             Update_Uncert_List();
             Update_Uncert_plot();
+            Update_Export_buttons();
 
+        }
+
+        public void Update_Run_Buttons()
+        {
+            string MCP_type = Get_MCP_Method();
+
+            if (((MCP_type == "Orth. Regression") && (MCP_Ortho.Slope != null)) || ((MCP_type == "Method of Bins") && (MCP_Bins.Bin_Avg_SD_Cnt != null)) || ((MCP_type == "Variance Ratio") && (MCP_Varrat.Slope != null)))
+                btnRunMCP.Enabled = false;
+            else
+                btnRunMCP.Enabled = true;
+
+            if ((MCP_type == "Orth. Regression" && Uncert_Ortho.Length > 0) || (MCP_type == "Method of Bins" && Uncert_Bins.Length > 0) || (MCP_type == "Variance Ratio" && Uncert_Varrat.Length > 0))
+                btnMCP_Uncert.Enabled = false;
+            else
+                btnMCP_Uncert.Enabled = true;
+                
+                     
+             
         }
 
         private void btnExportTS_Click(object sender, EventArgs e)
@@ -2005,64 +1727,76 @@ namespace MCP
 
             // Check that the export start/end are within interval of estimated data
             if (Export_Start > Ref_End)
+            {
                 MessageBox.Show("The selected export start date is after the end of the reference data period.");
-            // TO DO: Exit Sub
+                return;
+            }
 
 
             if (sfdSaveTimeSeries.ShowDialog() == DialogResult.OK)
+            {
                 filename = sfdSaveTimeSeries.FileName;
 
-            StreamWriter file = new StreamWriter(filename);
-            file.WriteLine("MCP WS & WD Estimates");
-            file.WriteLine(DateTime.Today);
-            file.WriteLine(Get_MCP_Method());
-            file.WriteLine();
+                StreamWriter file = new StreamWriter(filename);
+                file.WriteLine("MCP WS & WD Estimates");
+                file.WriteLine(DateTime.Today);
+                file.WriteLine(Get_MCP_Method());
+                file.WriteLine("Data binned into " + Get_Num_WD() + " wind direction sectors");
+                file.WriteLine();
 
-            file.WriteLine("Date, WS Est [m/s], WD Est [deg]");
+                file.WriteLine("Date, WS Est [m/s], WD Est [deg]");
 
-            if (Get_MCP_Method() == "Method of Bins" & MCP_Bins.LT_WS_Est != null)
-                foreach (Site_data LT_WS_WD in MCP_Bins.LT_WS_Est)
+                if (Get_MCP_Method() == "Method of Bins" && MCP_Bins.LT_WS_Est != null)
                 {
-                    if (LT_WS_WD.This_Date >= Export_Start & LT_WS_WD.This_Date <= Export_End)
+                    foreach (Site_data LT_WS_WD in MCP_Bins.LT_WS_Est)
                     {
-                        file.Write(LT_WS_WD.This_Date);
-                        file.Write(",");
-                        file.Write(LT_WS_WD.This_WS);
-                        file.Write(",");
-                        file.Write(LT_WS_WD.This_WD);
-                        file.WriteLine();
+                        if (LT_WS_WD.This_Date >= Export_Start && LT_WS_WD.This_Date <= Export_End)
+                        {
+                            file.Write(LT_WS_WD.This_Date);
+                            file.Write(",");
+                            file.Write(Math.Round(LT_WS_WD.This_WS,3));
+                            file.Write(",");
+                            file.Write(Math.Round(LT_WS_WD.This_WD,2));
+                            file.WriteLine();
+                        }
                     }
-                }
-            else if (Get_MCP_Method() == "Orth. Regression" & MCP_Ortho.LT_WS_Est != null)
-                foreach (Site_data LT_WS_WD in MCP_Ortho.LT_WS_Est)
-                {
-                    if (LT_WS_WD.This_Date >= Export_Start & LT_WS_WD.This_Date <= Export_End)
-                    {
-                        file.Write(LT_WS_WD.This_Date);
-                        file.Write(",");
-                        file.Write(LT_WS_WD.This_WS);
-                        file.Write(",");
-                        file.Write(LT_WS_WD.This_WD);
-                        file.WriteLine();
-                    }
-                }
 
-            else if (Get_MCP_Method() == "Variance Ratio" & MCP_Varrat.LT_WS_Est != null)
-                foreach (Site_data LT_WS_WD in MCP_Varrat.LT_WS_Est)
+                }
+                else if (Get_MCP_Method() == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null)
                 {
-                    if (LT_WS_WD.This_Date >= Export_Start & LT_WS_WD.This_Date <= Export_End)
+                    foreach (Site_data LT_WS_WD in MCP_Ortho.LT_WS_Est)
                     {
-                        file.Write(LT_WS_WD.This_Date);
-                        file.Write(",");
-                        file.Write(LT_WS_WD.This_WS);
-                        file.Write(",");
-                        file.Write(LT_WS_WD.This_WD);
-                        file.WriteLine();
+                        if (LT_WS_WD.This_Date >= Export_Start && LT_WS_WD.This_Date <= Export_End)
+                        {
+                            file.Write(LT_WS_WD.This_Date);
+                            file.Write(",");
+                            file.Write(Math.Round(LT_WS_WD.This_WS, 3));
+                            file.Write(",");
+                            file.Write(Math.Round(LT_WS_WD.This_WD, 2));
+                            file.WriteLine();
+                        }
                     }
                 }
 
-            file.Close();
+                else if (Get_MCP_Method() == "Variance Ratio" && MCP_Varrat.LT_WS_Est != null)
+                {
+                    foreach (Site_data LT_WS_WD in MCP_Varrat.LT_WS_Est)
+                    {
+                        if (LT_WS_WD.This_Date >= Export_Start && LT_WS_WD.This_Date <= Export_End)
+                        {
+                            file.Write(LT_WS_WD.This_Date);
+                            file.Write(",");
+                            file.Write(Math.Round(LT_WS_WD.This_WS, 3));
+                            file.Write(",");
+                            file.Write(Math.Round(LT_WS_WD.This_WD, 2));
+                            file.WriteLine();
+                        }
+                    }
+                }
 
+                file.Close();
+
+            }
         }
 
         private void btnExportBinRatios_Click(object sender, EventArgs e)
@@ -2072,6 +1806,8 @@ namespace MCP
             string filename = "";
             if (sfdSaveTimeSeries.ShowDialog() == DialogResult.OK)
                 filename = sfdSaveTimeSeries.FileName;
+            else
+                return;
 
             StreamWriter file = new StreamWriter(filename);
             file.WriteLine("Avg, SD & Count of WS Ratios (Target/Reference) from Method of Bins");
@@ -2173,15 +1909,15 @@ namespace MCP
             if (filename != "")
             {
                 StreamWriter file = new StreamWriter(filename);
-                file.WriteLine("MCP Estimate at Target Site using " + Get_MCP_Method() + ", " + Export_Start + " to " + Export_End);
+                file.WriteLine("MCP Estimate at Target Site using " + Get_MCP_Method() + ", " + Export_Start + " to " + Export_End + " binned into " + Get_Num_WD() + " WD sectors");
 
                 file.WriteLine("0 0 0");
-                file.Write(Get_Num_WD());
+                file.Write("16");
                 file.Write(" ");
                 file.Write(Get_WS_width());
                 file.WriteLine(" 0");
 
-                int Num_WD = Get_Num_WD();
+                int Num_WD = 16; // Using 16 WD sectors for TAB file creation
                 int Num_WS = 31;
 
                 float[] Wind_Rose = new float[Num_WD];
@@ -2195,7 +1931,7 @@ namespace MCP
 
                 int Est_data_ind = 0;
 
-                if (MCP_type == "Orth. Regression" & MCP_Ortho.LT_WS_Est != null)
+                if (MCP_type == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null)
                 {
                     for (int i = 0; i < MCP_Ortho.LT_WS_Est.Length; i++)
                     {
@@ -2211,7 +1947,7 @@ namespace MCP
                     Est_data_ind++;
 
                 }
-                else if (MCP_type == "Method of Bins" & MCP_Bins.LT_WS_Est != null)
+                else if (MCP_type == "Method of Bins" && MCP_Bins.LT_WS_Est != null)
                 {
                     for (int i = 0; i < MCP_Bins.LT_WS_Est.Length; i++)
                     {
@@ -2226,7 +1962,7 @@ namespace MCP
                     Est_data_ind++;
                 }
 
-                else if (MCP_type == "Variance Ratio" & MCP_Varrat.LT_WS_Est != null)
+                else if (MCP_type == "Variance Ratio" && MCP_Varrat.LT_WS_Est != null)
                 {
                     for (int i = 0; i < MCP_Varrat.LT_WS_Est.Length; i++)
                     {
@@ -2245,19 +1981,19 @@ namespace MCP
 
                 while (This_TS < Export_End)
                 {
-                    if (This_WS > 0 & This_WD > 0)
+                    if (This_WS > 0 && This_WD > 0)
                     {
                         int WS_ind = (int)Math.Round(This_WS, 0);
                         if (WS_ind >= Num_WS) WS_ind = Num_WS - 1;
 
-                        int WD_ind = (int)Math.Round(This_WD / (360 / Get_Num_WD()), 0);
+                        int WD_ind = (int)Math.Round(This_WD / (360 / Num_WD), 0);
                         if (WD_ind == Num_WD) WD_ind = 0;
 
                         Wind_Rose[WD_ind]++;
                         WSWD_Dist[WS_ind, WD_ind]++;
                     }
 
-                    if (MCP_type == "Orth. Regression" & MCP_Ortho.LT_WS_Est != null)
+                    if (MCP_type == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null)
                     {
                         This_TS = MCP_Ortho.LT_WS_Est[Est_data_ind].This_Date;
                         This_WS = MCP_Ortho.LT_WS_Est[Est_data_ind].This_WS;
@@ -2265,14 +2001,14 @@ namespace MCP
                         Est_data_ind++;
 
                     }
-                    else if (MCP_type == "Method of Bins" & MCP_Bins.LT_WS_Est != null)
+                    else if (MCP_type == "Method of Bins" && MCP_Bins.LT_WS_Est != null)
                     {
                         This_TS = MCP_Bins.LT_WS_Est[Est_data_ind].This_Date;
                         This_WS = MCP_Bins.LT_WS_Est[Est_data_ind].This_WS;
                         This_WD = MCP_Bins.LT_WS_Est[Est_data_ind].This_WD;
                         Est_data_ind++;
                     }
-                    else if (MCP_type == "Variance Ratio" & MCP_Varrat.LT_WS_Est != null)
+                    else if (MCP_type == "Variance Ratio" && MCP_Varrat.LT_WS_Est != null)
                     {
                         This_TS = MCP_Varrat.LT_WS_Est[Est_data_ind].This_Date;
                         This_WS = MCP_Varrat.LT_WS_Est[Est_data_ind].This_WS;
@@ -2320,45 +2056,46 @@ namespace MCP
 
         private void txtWS_bin_width_TextChanged(object sender, EventArgs e)
         {
-            if ((MCP_Bins.Bin_Avg_SD_Cnt != null))
+            DialogResult result = DialogResult.Yes;
+
+            if (Is_Newly_Opened_File == false)
             {
                 string message = "Changing the WS bin width will reset the MCP. Do you want to continue?";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                DialogResult result;
-
                 result = MessageBox.Show(message, "", buttons);
-
-                if (result == System.Windows.Forms.DialogResult.Yes)
-                {
-                    Conc_Data = null;
-                    MCP_Ortho.Clear();
-                    MCP_Bins.Clear();
-                    MCP_Varrat.Clear();
-                    if (Uncert_Ortho != null | Uncert_Bins != null | Uncert_Varrat != null)
-                    {
-                        for (int u = 0; u < Uncert_Ortho.Length; u++)
-                        {
-                            Uncert_Ortho[u].Clear();
-                        }
-                        for (int u = 0; u < Uncert_Bins.Length; u++)
-                        {
-                            Uncert_Bins[u].Clear();
-                        }
-                        for (int u = 0; u < Uncert_Varrat.Length; u++)
-                        {
-                            Uncert_Varrat[u].Clear();
-                        }
-                    }
-                    Conc_Start = date_Corr_Start.Value;
-                    Got_Conc = false;
-                    btnRunMCP.Enabled = true;
-                    Update_Text_boxes();
-                    Update_Bin_List();
-                    Update_Uncert_List();
-                    Update_plot();
-                    Update_Uncert_plot();
-                }
             }
+
+            if (Is_Newly_Opened_File == false && result == System.Windows.Forms.DialogResult.Yes)
+            {
+                Conc_Data = new Concurrent_data[0];
+                MCP_Ortho.Clear();
+                MCP_Bins.Clear();
+                MCP_Varrat.Clear();
+
+                Uncert_Ortho = new MCP_Uncert[0];
+                Uncert_Bins = new MCP_Uncert[0];
+                Uncert_Varrat = new MCP_Uncert[0];
+
+                try
+                {
+                    WS_bin_width = Convert.ToSingle(txtWS_bin_width.Text.ToString());
+                }
+                catch
+                {
+                    return;
+                }
+                
+                                        
+                Conc_Start = date_Corr_Start.Value;
+                Got_Conc = false;
+                btnRunMCP.Enabled = true;
+                Update_Text_boxes();
+                Update_Bin_List();
+                Update_Uncert_List();
+                Update_plot();
+                Update_Uncert_plot();
+            }
+            
         }
 
         private void btnConvertToHourly_Click(object sender, EventArgs e)
@@ -2396,7 +2133,7 @@ namespace MCP
                     {
                         Char[] delims = { ',' };
                         String[] substrings = line.Split(delims);
-                        if (substrings[1] != "NaN" & substrings[2] != "NaN")
+                        if (substrings[1] != "NaN" && substrings[2] != "NaN")
                         {
                             This_Date = Convert.ToDateTime(substrings[0]);
                             This_WS = Convert.ToSingle(substrings[1]);
@@ -2493,7 +2230,7 @@ namespace MCP
 
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
 
                     }
@@ -2542,7 +2279,7 @@ namespace MCP
                     {
                         Char[] delims = { ',' };
                         String[] substrings = line.Split(delims);
-                        if (substrings[1] != "NaN" & substrings[2] != "NaN")
+                        if (substrings[1] != "NaN" && substrings[2] != "NaN")
                         {
                             This_Date = Convert.ToDateTime(substrings[0]);
                             This_WS = Convert.ToSingle(substrings[1]);
@@ -2636,7 +2373,7 @@ namespace MCP
 
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
 
                     }
@@ -2698,7 +2435,7 @@ namespace MCP
 
         private void date_Export_End_ValueChanged(object sender, EventArgs e)
         {
-            if (date_Export_End.Value < Ref_Start)
+            if (date_Export_End.Value < Ref_Start && Is_Newly_Opened_File == false)
             {
                 MessageBox.Show("Export end date cannot be before the start of the reference site data.");
                 date_Export_End.Value = Ref_End;
@@ -2713,12 +2450,7 @@ namespace MCP
             Update_Uncert_plot();
         }
 
-        private void label33_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
+        
         private void btnMCP_Uncert_Click(object sender, EventArgs e)
         {
             int WD_ind = Get_WD_ind();
@@ -2752,8 +2484,8 @@ namespace MCP
                     {
                         // Initialize First Test Start at Concurrent Start Date at beginning of each iteration
                         Test_End = Test_Start.AddMonths(m + 1);
-
-                        Uncert_Ortho[m].LT_Ests[i] = Get_Orth_Est(Test_Start, Test_End, WD_ind);
+                         
+                        Uncert_Ortho[m].LT_Ests[i] = Do_MCP(Test_Start, Test_End, false, current_method);
                         Uncert_Ortho[m].Start[i] = Test_Start;
                         Uncert_Ortho[m].End[i] = Test_End;
 
@@ -2784,7 +2516,7 @@ namespace MCP
                         // Initialize First Test Start at Concurrent Start Date at beginning of each iteration
                         Test_End = Test_Start.AddMonths(m + 1);
 
-                        Uncert_Bins[m].LT_Ests[i] = Get_Bins_Est(Test_Start, Test_End, WD_ind);
+                        Uncert_Bins[m].LT_Ests[i] = Do_MCP(Test_Start, Test_End, false, current_method);
                         Uncert_Bins[m].Start[i] = Test_Start;
                         Uncert_Bins[m].End[i] = Test_End;
 
@@ -2815,7 +2547,7 @@ namespace MCP
                         // Initialize First Test Start at Concurrent Start Date at beginning of each iteration
                         Test_End = Test_Start.AddMonths(m + 1);
 
-                        Uncert_Varrat[m].LT_Ests[i] = Get_Varrat_Est(Test_Start, Test_End, WD_ind);
+                        Uncert_Varrat[m].LT_Ests[i] = Do_MCP(Test_Start, Test_End, false, current_method);
                         Uncert_Varrat[m].Start[i] = Test_Start;
                         Uncert_Varrat[m].End[i] = Test_End;
 
@@ -2830,6 +2562,9 @@ namespace MCP
             Update_Uncert_plot();
             //Update List
             Update_Uncert_List();
+            Update_Export_buttons();
+
+            Changes_Made();
         }
 
         public void Calc_Avg_SD_Uncert(ref MCP_Uncert This_Uncert)
@@ -2849,7 +2584,7 @@ namespace MCP
 
                 foreach (double value in This_Uncert.LT_Ests)
                 {
-                    var_x = var_x + (Math.Pow(value - This_Uncert.avg, 2) / (val_length - 1));
+                    var_x = var_x + (Math.Pow(value - This_Uncert.avg, 2) / (val_length));
                 }
                 This_Uncert.std_dev = Convert.ToSingle(Math.Pow(var_x, 0.5));
 
@@ -2873,7 +2608,7 @@ namespace MCP
             // Get Active MCP type
             string active_method = Get_MCP_Method();
 
-            if (active_method == "Orth. Regression" & Uncert_Ortho != null)
+            if (active_method == "Orth. Regression" && Uncert_Ortho.Length > 0)
             {
                 for (int u = 0; u < Uncert_Ortho.Length; u++)
                 {
@@ -2889,7 +2624,7 @@ namespace MCP
                     }
                 }
             }
-            if (active_method == "Method of Bins" & Uncert_Bins != null)
+            if (active_method == "Method of Bins" && Uncert_Bins.Length > 0)
             {
                 for (int u = 0; u < Uncert_Bins.Length; u++)
                 {
@@ -2905,7 +2640,7 @@ namespace MCP
                     }
                 }
             }
-            if (active_method == "Variance Ratio" & Uncert_Varrat != null)
+            if (active_method == "Variance Ratio" && Uncert_Varrat.Length > 0)
             {
                 for (int u = 0; u < Uncert_Varrat.Length; u++)
                 {
@@ -2922,17 +2657,7 @@ namespace MCP
                 }
             }
         }
-
-        private void chtUncert_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lstUncert_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
+                
         private void btnExportMultitest_Click(object sender, EventArgs e)
         {
             // Export estimated time series data as a TAB file (i.e. joint WS/WD distribution)
@@ -2950,14 +2675,15 @@ namespace MCP
                 StreamWriter file = new StreamWriter(filename);
                 file.WriteLine("MCP Uncertainty at Target Site " + current_method + ",");
                 file.WriteLine("Reference: " + txtLoadedReference.Text.Substring(ref_start) + ", Target: " + txtLoadedTarget.Text.Substring(targ_start) + ",");
+                file.WriteLine("Data binned into " + Get_Num_WD() + " wind direction sectors");
                 file.WriteLine("Start Time, End Time, Window Size, LT WS Est, LT Avg, Std Dev");
 
-                if (current_method == "Orth. Regression" & Uncert_Ortho != null)
+                if (current_method == "Orth. Regression" && Uncert_Ortho.Length > 0)
                 { 
                     for (int u = 0; u < Uncert_Ortho.Length; u++)
                     {
                         // Assign LT Avg series = Avg of Uncert obj
-                        if (Uncert_Ortho[u].avg != 0 & Uncert_Ortho[u].std_dev != 0)
+                        if (Uncert_Ortho[u].avg != 0 && Uncert_Ortho[u].std_dev != 0)
                         {
                             for (int i = 0; i < Uncert_Ortho[u].LT_Ests.Length; i++)
                             {
@@ -2977,12 +2703,12 @@ namespace MCP
                         }
                     }
                 }
-                else if (current_method == "Method of Bins" & Uncert_Bins != null)
+                else if (current_method == "Method of Bins" && Uncert_Bins.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Bins.Length; u++)
                     {
                         // Assign LT Avg series = Avg of Uncert obj
-                        if (Uncert_Bins[u].avg != 0 & Uncert_Bins[u].std_dev != 0)
+                        if (Uncert_Bins[u].avg != 0 && Uncert_Bins[u].std_dev != 0)
                         {
                             for (int i = 0; i < Uncert_Bins[u].LT_Ests.Length; i++)
                             {
@@ -3002,12 +2728,12 @@ namespace MCP
                         }
                     }
                 }
-                else if (current_method == "Variance Ratio" & Uncert_Varrat != null)
+                else if (current_method == "Variance Ratio" && Uncert_Varrat.Length > 0)
                 {
                     for (int u = 0; u < Uncert_Varrat.Length; u++)
                     {
                         // Assign LT Avg series = Avg of Uncert obj
-                        if (Uncert_Varrat[u].avg != 0 & Uncert_Varrat[u].std_dev != 0)
+                        if (Uncert_Varrat[u].avg != 0 && Uncert_Varrat[u].std_dev != 0)
                         {
                             for (int i = 0; i < Uncert_Varrat[u].LT_Ests.Length; i++)
                             {
@@ -3036,9 +2762,363 @@ namespace MCP
             
         }
 
-        private void txtLoadedReference_TextChanged(object sender, EventArgs e)
+        private void btnResetDates_Click(object sender, EventArgs e)
+        {
+            Reset_Export_Dates();
+        }
+
+        private void btnResetConcDates_Click(object sender, EventArgs e)
+        {
+            Set_Conc_Dates_On_Form();
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            New_MCP(true, true);
+        }
+
+        public void New_MCP(bool Clear_Ref, bool Clear_Target)
+        {
+            // Creates a MCP analysis
+
+            if (Clear_Ref == true)
+            {
+                Ref_Data = new Site_data[0];
+                txtLoadedReference.Clear();
+                Got_Ref = false;
+            }
+
+            if (Clear_Target == true)
+            {
+                Target_Data = new Site_data[0];
+                txtLoadedTarget.Clear();
+                Got_Targ = false;
+            }
+            
+            Conc_Data = new Concurrent_data[0];
+            Got_Conc = false;
+
+            Num_WD_Sectors = 1;
+            WS_bin_width = 1;
+            Is_Newly_Opened_File = true;
+
+            for (int i = 0; i < cboNumWD.Items.Count - 1; i ++)
+            {
+                if (cboNumWD.Items[i].ToString() == Num_WD_Sectors.ToString())
+                {
+                    cboNumWD.SelectedIndex = i;
+                    break;
+                }
+            }
+
+            txtWS_bin_width.Text = WS_bin_width.ToString();
+
+            MCP_Ortho.Clear();
+            MCP_Bins.Clear();
+            MCP_Varrat.Clear();
+
+            Uncert_Ortho = new MCP_Uncert[0];
+            Uncert_Bins = new MCP_Uncert[0];
+            Uncert_Varrat = new MCP_Uncert[0];
+
+            Update_Run_Buttons();
+            Update_plot();
+            Update_Uncert_plot();
+            Update_Text_boxes();
+            btnRunMCP.Enabled = true;
+            btnMCP_Uncert.Enabled = true;
+            Update_Bin_List();
+            Update_Uncert_List();
+            Update_Export_buttons();
+
+            Saved_Filename = "";
+            saveToolStripMenuItem.Enabled = false;
+            Changes_Made();
+
+            Is_Newly_Opened_File = false;
+                  
+            
+
+        }
+
+        private void Set_Default_Folder_locations(string Default_folder)
         {
 
+            int Ind = Default_folder.LastIndexOf('\\');
+            Default_folder = Default_folder.Substring(1, Ind);
+            ofdOpenMCP.InitialDirectory = Default_folder;
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (sfdSaveMCP.ShowDialog() == DialogResult.OK)
+            {
+                string Whole_Path = sfdSaveMCP.FileName;
+                Set_Default_Folder_locations(Whole_Path);
+
+                Save_File(Whole_Path);
+                
+            }
+        }
+
+        public void Save_File(string Whole_Path)
+        {
+            FileStream fStream = File.Create(Whole_Path);
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            formatter.Serialize(fStream, Ref_Start);
+            formatter.Serialize(fStream, Ref_End);
+            formatter.Serialize(fStream, Target_Start);
+            formatter.Serialize(fStream, Target_End);
+            formatter.Serialize(fStream, Conc_Start);
+            formatter.Serialize(fStream, Conc_End);
+            formatter.Serialize(fStream, Export_Start);
+            formatter.Serialize(fStream, Export_End);
+
+            formatter.Serialize(fStream, Ref_Data);
+            formatter.Serialize(fStream, Got_Ref);
+            formatter.Serialize(fStream, Ref_filename);
+            formatter.Serialize(fStream, Target_Data);
+            formatter.Serialize(fStream, Got_Targ);
+            formatter.Serialize(fStream, Target_filename);
+
+            formatter.Serialize(fStream, Conc_Data);
+            formatter.Serialize(fStream, Got_Conc);
+            formatter.Serialize(fStream, Num_WD_Sectors);
+            formatter.Serialize(fStream, WS_bin_width);
+
+            formatter.Serialize(fStream, MCP_Ortho);
+            formatter.Serialize(fStream, MCP_Bins);
+            formatter.Serialize(fStream, MCP_Varrat);
+
+            formatter.Serialize(fStream, Uncert_Ortho);
+            formatter.Serialize(fStream, Uncert_Bins);
+            formatter.Serialize(fStream, Uncert_Varrat);
+
+            fStream.Close();
+            Saved_Filename = sfdSaveMCP.FileName;
+            this.Text = Saved_Filename;
+            this.saveToolStripMenuItem.Enabled = true;
+        }
+
+        public void Changes_Made()
+        {
+            this.Text = Saved_Filename + "*";
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ofdOpenMCP.ShowDialog() == DialogResult.OK)
+            {
+                string Whole_Path = "";
+                Whole_Path = ofdOpenMCP.FileName;
+                Set_Default_Folder_locations(Whole_Path);
+
+                FileStream fstream = File.OpenRead(Whole_Path);
+                BinaryFormatter formatter = new BinaryFormatter();
+                try
+                {
+                    Ref_Start = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Ref_End = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Target_Start = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Target_End = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Conc_Start = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Conc_End = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+                
+                try
+                {
+                    Export_Start = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Export_End = (DateTime)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Ref_Data = (Site_data[])formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Got_Ref = (bool)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Ref_filename = (string)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Target_Data = (Site_data[])formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Got_Targ = (bool)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Target_filename = (string)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Conc_Data = (Concurrent_data[])formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Got_Conc = (bool)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Num_WD_Sectors = (int)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    WS_bin_width = (float)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    MCP_Ortho = (Lin_MCP)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    MCP_Bins = (Method_of_Bins)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    MCP_Varrat = (Lin_MCP)formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Uncert_Ortho = (MCP_Uncert[])formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Uncert_Bins = (MCP_Uncert[])formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                try
+                {
+                    Uncert_Varrat = (MCP_Uncert[])formatter.Deserialize(fstream);
+                }
+                catch
+                { }
+
+                Saved_Filename = ofdOpenMCP.FileName;
+                this.Text = Saved_Filename;
+                saveToolStripMenuItem.Enabled = true;
+            }
+
+            Is_Newly_Opened_File = true;
+
+            for (int i = 0; i < cboNumWD.Items.Count; i++)
+            {
+                if (cboNumWD.Items[i].ToString() == Convert.ToString(Num_WD_Sectors))
+                {
+                    cboNumWD.SelectedIndex = i;
+                    break;
+                }
+            }
+
+            txtWS_bin_width.Text = Convert.ToString(WS_bin_width);
+
+            Update_Run_Buttons();
+            Update_WD_DropDown();
+            Update_Bin_List();
+            Update_Dates();
+            Update_Export_buttons();
+            Update_plot();
+            Update_Text_boxes();
+            Update_Uncert_List();
+            Update_Uncert_plot();
+            
+            Is_Newly_Opened_File = false;
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Saved_Filename != "")
+                Save_File(Saved_Filename);
         }
     }
 }
