@@ -278,7 +278,13 @@ namespace MCP
 
                     }
                     catch
-                    { }
+                    {
+                        if (New_data_count > 10) // only break if an error occurs past the header
+                        {
+                            MessageBox.Show("Error reading in reference data. Make sure that the file contains found columns: Time Stamp, WS, WD, Temp");
+                            return;
+                        }                        
+                    }
                 }
 
 
@@ -563,7 +569,6 @@ namespace MCP
                                 {
                                     Targ_Min_WS = (float)(Targ_Min_WS - Targ_Min_WS * 0.02);
                                     Targ_Max_WS = (float)(Targ_Max_WS + Targ_Max_WS * 0.02);
-
                                 }
 
                                 float WS_int = (Targ_Max_WS - Targ_Min_WS) / 999;
@@ -659,7 +664,7 @@ namespace MCP
 
             if (Got_Conc)
             {
-                if ((Get_All == true) || (((WD_ind == 0) && (Get_Num_WD() == 1)) && ((Hourly_ind == 0) && (Get_Num_Hourly_Ints() == 1)) && ((Temp_ind == 0) && (Get_Num_Temp_Ints() == 1))))            
+                if ((Get_All == true) || ((Min_WS == 0) && (Max_WS == 30) && ((WD_ind == 0) && (Get_Num_WD() == 1)) && ((Hourly_ind == 0) && (Get_Num_Hourly_Ints() == 1)) && ((Temp_ind == 0) && (Get_Num_Temp_Ints() == 1))))            
                 {
                     Array.Resize(ref These_WS, Conc_Data.Length);
 
@@ -679,7 +684,7 @@ namespace MCP
                         This_Hour_ind = Get_Hourly_Index(These_Conc.This_Date.Hour);
                         This_Temp_ind = Get_Temp_ind(This_WD_ind, This_Hour_ind, These_Conc.Ref_Temp);
 
-                        if ((This_WD_ind == WD_ind) && (This_Hour_ind == Hourly_ind) && (This_Temp_ind == Temp_ind))
+                        if ((These_Conc.Ref_WS > Min_WS) && (These_Conc.Ref_WS <= Max_WS) && (This_WD_ind == WD_ind) && (This_Hour_ind == Hourly_ind) && (This_Temp_ind == Temp_ind))
                                 WD_count++;                         
                                                   
                     }
@@ -693,7 +698,7 @@ namespace MCP
                         This_Hour_ind = Get_Hourly_Index(These_Conc.This_Date.Hour);
                         This_Temp_ind = Get_Temp_ind(This_WD_ind, This_Hour_ind, These_Conc.Ref_Temp);
 
-                        if ((This_WD_ind == WD_ind) && (This_Hour_ind == Hourly_ind) && (This_Temp_ind == Temp_ind))
+                        if ((These_Conc.Ref_WS > Min_WS) && (These_Conc.Ref_WS <= Max_WS) && (This_WD_ind == WD_ind) && (This_Hour_ind == Hourly_ind) && (This_Temp_ind == Temp_ind))
                         {
                             if (Target_or_Ref == "Target")
                                 These_WS[WD_count] = These_Conc.Target_WS;
@@ -1423,7 +1428,7 @@ namespace MCP
                     {
                         //  Calculate CDF                        
                         float[] CDF = new float[1000];
-                        CDF[0] = Combo_PDF.PDF[0] * WS_PDF.WS_interval;
+                        CDF[0] = Combo_PDF.PDF[0] * WS_PDF.WS_interval;                                               
 
                         for (int j = 1; j < 1000; j++)
                         {
@@ -1431,7 +1436,7 @@ namespace MCP
                         }
 
                         // interpolate between plateaus in CDF
-                        CDF = Interpolate_CDF(CDF);
+                   //     CDF = Interpolate_CDF(CDF);
                         
                         // normalize CDF to add to 1.0
                         for (int j = 0; j < 1000; j++)
@@ -1497,29 +1502,32 @@ namespace MCP
             int Last_CDF_ind = 0;
             float Next_CDF = 0;
             int Next_CDF_ind = 0;
+            int This_WS_ind = 1;
 
-            for (int i = 1; i < 1000; i++)
+            while (This_WS_ind < 1000)
             {
-                if (This_CDF[i] == Last_CDF)
+                if (This_CDF[This_WS_ind] == Last_CDF)
                 {
-                    while (This_CDF[i] == Last_CDF)
-                        i++;
+                    while (This_CDF[This_WS_ind] == Last_CDF)
+                        This_WS_ind++;
 
-                    Next_CDF_ind = i;
-                    Next_CDF = This_CDF[i];
+                    Next_CDF_ind = This_WS_ind;
+                    Next_CDF = This_CDF[This_WS_ind];
 
                     for (int j = Last_CDF_ind; j <= Next_CDF_ind; j++)
                         Interp_CDF[j] = (float)(j - Last_CDF_ind) / (Next_CDF_ind - Last_CDF_ind) * (This_CDF[Next_CDF_ind] - This_CDF[Last_CDF_ind]) + This_CDF[Last_CDF_ind];
 
-                    Last_CDF = This_CDF[i];
-                    Last_CDF_ind = i;
+                    Last_CDF = This_CDF[This_WS_ind];
+                    Last_CDF_ind = This_WS_ind;
+                    This_WS_ind++;
 
                 }
                 else
                 {
-                    Interp_CDF[i] = This_CDF[i];
-                    Last_CDF = This_CDF[i];
-                    Last_CDF_ind = i;
+                    Interp_CDF[This_WS_ind] = This_CDF[This_WS_ind];
+                    Last_CDF = This_CDF[This_WS_ind];
+                    Last_CDF_ind = This_WS_ind;
+                    This_WS_ind++;
                 }
             }
             
@@ -2949,7 +2957,17 @@ namespace MCP
                 // read in name, UTMX/Y and height
                 string UTMX = txtUTMX.Text;
                 string UTMY = txtUTMY.Text;
-                double Height = Math.Round(Convert.ToDouble(txtHeight.Text), 1);
+                double Height = 0;
+
+                try
+                {
+                    Height = Math.Round(Convert.ToDouble(txtHeight.Text), 1);
+                }
+                catch
+                {
+                    MessageBox.Show("Error reading the hub height. Entering zero in TAB file");
+                }
+                
                 string UTMs_Height = UTMX + " " + UTMY + " " + Height;
 
                 int Num_bins = Convert.ToInt16(cboTAB_bins.Text);
@@ -3273,7 +3291,7 @@ namespace MCP
                     }
                     catch
                     {
-                        int k = 0;
+                        
                     }
 
                 }
@@ -4574,7 +4592,7 @@ namespace MCP
                 string End_str = "12/31/" + This_Start;
                 DateTime This_TAB_end = Convert.ToDateTime(End_str);
 
-                if (This_TAB_end <= Ref_End)
+                if (This_TAB_end >= Ref_End)
                     break; // This_TAB_end is past the end of the reference data so can't create any more annual TAB files
 
                 string TAB_name = MetName + "_" + This_Start + ".TAB";
@@ -4584,6 +4602,12 @@ namespace MCP
 
             }
 
+        }
+
+        private void aboutMCPToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MCP_Info MCP_About = new MCP_Info();
+            MCP_About.ShowDialog();
         }
     }
 }

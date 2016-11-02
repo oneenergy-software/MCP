@@ -160,6 +160,7 @@
             this.TABfolder = new System.Windows.Forms.FolderBrowserDialog();
             this.label46 = new System.Windows.Forms.Label();
             this.cboUncertStep = new System.Windows.Forms.ComboBox();
+            this.aboutMCPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.chtScatter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chtUncert)).BeginInit();
             this.menuStrip1.SuspendLayout();
@@ -1120,7 +1121,8 @@
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.aboutMCPToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1650, 33);
@@ -1468,6 +1470,13 @@
             this.cboUncertStep.TabIndex = 107;
             this.cboUncertStep.Text = "1";
             // 
+            // aboutMCPToolStripMenuItem
+            // 
+            this.aboutMCPToolStripMenuItem.Name = "aboutMCPToolStripMenuItem";
+            this.aboutMCPToolStripMenuItem.Size = new System.Drawing.Size(116, 29);
+            this.aboutMCPToolStripMenuItem.Text = "About MCP";
+            this.aboutMCPToolStripMenuItem.Click += new System.EventHandler(this.aboutMCPToolStripMenuItem_Click);
+            // 
             // MCP_tool
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -1718,6 +1727,7 @@
         private System.Windows.Forms.FolderBrowserDialog TABfolder;
         private System.Windows.Forms.Label label46;
         private System.Windows.Forms.ComboBox cboUncertStep;
+        private System.Windows.Forms.ToolStripMenuItem aboutMCPToolStripMenuItem;
     }
 }
 
