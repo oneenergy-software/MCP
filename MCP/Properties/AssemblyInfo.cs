@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MCP tool")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Measure-Correlate-Predict tool used to form long-term wind speed estimates at target (project) sites based on a long-term reference and the calculated relationship between the two.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("One Energy")]
 [assembly: AssemblyProduct("MCP")]
