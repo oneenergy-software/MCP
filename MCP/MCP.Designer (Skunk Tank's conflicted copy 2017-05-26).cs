@@ -28,13 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MCP_tool));
             this.label1 = new System.Windows.Forms.Label();
             this.btnImportRef = new System.Windows.Forms.Button();
@@ -206,7 +206,7 @@
             this.btnRunMCP.Location = new System.Drawing.Point(279, 358);
             this.btnRunMCP.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnRunMCP.Name = "btnRunMCP";
-            this.btnRunMCP.Size = new System.Drawing.Size(110, 55);
+            this.btnRunMCP.Size = new System.Drawing.Size(109, 55);
             this.btnRunMCP.TabIndex = 3;
             this.btnRunMCP.Text = "Run MCP";
             this.btnRunMCP.UseVisualStyleBackColor = true;
@@ -217,7 +217,7 @@
             this.btnExportTS.Location = new System.Drawing.Point(12, 768);
             this.btnExportTS.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnExportTS.Name = "btnExportTS";
-            this.btnExportTS.Size = new System.Drawing.Size(146, 72);
+            this.btnExportTS.Size = new System.Drawing.Size(145, 72);
             this.btnExportTS.TabIndex = 4;
             this.btnExportTS.Text = "Export Estimated data as Time Series";
             this.btnExportTS.UseVisualStyleBackColor = true;
@@ -228,7 +228,7 @@
             this.btnExportTAB.Location = new System.Drawing.Point(12, 848);
             this.btnExportTAB.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnExportTAB.Name = "btnExportTAB";
-            this.btnExportTAB.Size = new System.Drawing.Size(146, 60);
+            this.btnExportTAB.Size = new System.Drawing.Size(145, 60);
             this.btnExportTAB.TabIndex = 5;
             this.btnExportTAB.Text = "Export Estimated data as TAB file\r\n";
             this.btnExportTAB.UseVisualStyleBackColor = true;
@@ -253,7 +253,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(24, 289);
+            this.label2.Location = new System.Drawing.Point(24, 290);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(298, 26);
@@ -383,7 +383,7 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(1118, 162);
+            this.label9.Location = new System.Drawing.Point(1117, 162);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(119, 25);
@@ -392,21 +392,21 @@
             // 
             // chtScatter
             // 
-            chartArea3.AxisX.Title = "Reference WS, m/s";
-            chartArea3.AxisY.Title = "Target WS, m/s";
-            chartArea3.Name = "ChartArea1";
-            this.chtScatter.ChartAreas.Add(chartArea3);
-            legend3.Enabled = false;
-            legend3.Name = "Legend1";
-            this.chtScatter.Legends.Add(legend3);
+            chartArea1.AxisX.Title = "Reference WS, m/s";
+            chartArea1.AxisY.Title = "Target WS, m/s";
+            chartArea1.Name = "ChartArea1";
+            this.chtScatter.ChartAreas.Add(chartArea1);
+            legend1.Enabled = false;
+            legend1.Name = "Legend1";
+            this.chtScatter.Legends.Add(legend1);
             this.chtScatter.Location = new System.Drawing.Point(670, 200);
             this.chtScatter.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chtScatter.Name = "chtScatter";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.chtScatter.Series.Add(series4);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chtScatter.Series.Add(series1);
             this.chtScatter.Size = new System.Drawing.Size(968, 378);
             this.chtScatter.TabIndex = 20;
             this.chtScatter.Text = "chtWS_scatter";
@@ -435,7 +435,7 @@
             // txtTarg_LT_WS
             // 
             this.txtTarg_LT_WS.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTarg_LT_WS.Location = new System.Drawing.Point(1078, 120);
+            this.txtTarg_LT_WS.Location = new System.Drawing.Point(1079, 120);
             this.txtTarg_LT_WS.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtTarg_LT_WS.Name = "txtTarg_LT_WS";
             this.txtTarg_LT_WS.ReadOnly = true;
@@ -451,7 +451,7 @@
             this.btnClearRef.Location = new System.Drawing.Point(9, 222);
             this.btnClearRef.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnClearRef.Name = "btnClearRef";
-            this.btnClearRef.Size = new System.Drawing.Size(201, 58);
+            this.btnClearRef.Size = new System.Drawing.Size(201, 59);
             this.btnClearRef.TabIndex = 24;
             this.btnClearRef.Text = "Clear Reference data";
             this.btnClearRef.UseVisualStyleBackColor = true;
@@ -459,12 +459,12 @@
             // 
             // date_Corr_Start
             // 
-            this.date_Corr_Start.CustomFormat = "MM/dd/yyyy hh:mm tt";
+            this.date_Corr_Start.CustomFormat = "MM/dd/yyyy hh:mm";
             this.date_Corr_Start.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.date_Corr_Start.Location = new System.Drawing.Point(166, 635);
             this.date_Corr_Start.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.date_Corr_Start.Name = "date_Corr_Start";
-            this.date_Corr_Start.Size = new System.Drawing.Size(223, 26);
+            this.date_Corr_Start.Size = new System.Drawing.Size(195, 26);
             this.date_Corr_Start.TabIndex = 25;
             this.date_Corr_Start.ValueChanged += new System.EventHandler(this.date_Corr_Start_ValueChanged);
             // 
@@ -472,7 +472,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(188, 609);
+            this.label10.Location = new System.Drawing.Point(188, 610);
             this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(127, 22);
@@ -481,12 +481,12 @@
             // 
             // date_Corr_End
             // 
-            this.date_Corr_End.CustomFormat = "MM/dd/yyyy hh:mm tt";
+            this.date_Corr_End.CustomFormat = "MM/dd/yyyy hh:mm";
             this.date_Corr_End.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.date_Corr_End.Location = new System.Drawing.Point(166, 692);
             this.date_Corr_End.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.date_Corr_End.Name = "date_Corr_End";
-            this.date_Corr_End.Size = new System.Drawing.Size(223, 26);
+            this.date_Corr_End.Size = new System.Drawing.Size(195, 26);
             this.date_Corr_End.TabIndex = 27;
             this.date_Corr_End.ValueChanged += new System.EventHandler(this.date_Corr_End_ValueChanged);
             // 
@@ -506,7 +506,7 @@
             this.btnClearTarget.Location = new System.Drawing.Point(218, 222);
             this.btnClearTarget.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnClearTarget.Name = "btnClearTarget";
-            this.btnClearTarget.Size = new System.Drawing.Size(170, 58);
+            this.btnClearTarget.Size = new System.Drawing.Size(170, 59);
             this.btnClearTarget.TabIndex = 29;
             this.btnClearTarget.Text = "Clear Target data";
             this.btnClearTarget.UseVisualStyleBackColor = true;
@@ -516,7 +516,7 @@
             // 
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(206, 1049);
+            this.label12.Location = new System.Drawing.Point(206, 1050);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(99, 22);
@@ -525,13 +525,13 @@
             // 
             // date_Export_End
             // 
-            this.date_Export_End.CustomFormat = "MM/dd/yyyy hh:mm tt ";
+            this.date_Export_End.CustomFormat = "MM/dd/yyyy hh:mm  ";
             this.date_Export_End.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.date_Export_End.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.date_Export_End.Location = new System.Drawing.Point(180, 1075);
+            this.date_Export_End.Location = new System.Drawing.Point(180, 1076);
             this.date_Export_End.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.date_Export_End.Name = "date_Export_End";
-            this.date_Export_End.Size = new System.Drawing.Size(219, 26);
+            this.date_Export_End.Size = new System.Drawing.Size(198, 26);
             this.date_Export_End.TabIndex = 32;
             this.date_Export_End.ValueChanged += new System.EventHandler(this.date_Export_End_ValueChanged);
             // 
@@ -539,7 +539,7 @@
             // 
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(206, 985);
+            this.label13.Location = new System.Drawing.Point(206, 984);
             this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(105, 22);
@@ -548,20 +548,20 @@
             // 
             // date_Export_Start
             // 
-            this.date_Export_Start.CustomFormat = "MM/dd/yyyy hh:mm tt";
+            this.date_Export_Start.CustomFormat = "MM/dd/yyyy hh:mm";
             this.date_Export_Start.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.date_Export_Start.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.date_Export_Start.Location = new System.Drawing.Point(180, 1012);
             this.date_Export_Start.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.date_Export_Start.Name = "date_Export_Start";
-            this.date_Export_Start.Size = new System.Drawing.Size(219, 26);
+            this.date_Export_Start.Size = new System.Drawing.Size(198, 26);
             this.date_Export_Start.TabIndex = 30;
             this.date_Export_Start.ValueChanged += new System.EventHandler(this.date_Export_Start_ValueChanged);
             // 
             // txtDataCount
             // 
             this.txtDataCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtDataCount.Location = new System.Drawing.Point(1298, 82);
+            this.txtDataCount.Location = new System.Drawing.Point(1297, 81);
             this.txtDataCount.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtDataCount.Name = "txtDataCount";
             this.txtDataCount.ReadOnly = true;
@@ -593,7 +593,7 @@
             // txtAvgRatio
             // 
             this.txtAvgRatio.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtAvgRatio.Location = new System.Drawing.Point(1188, 82);
+            this.txtAvgRatio.Location = new System.Drawing.Point(1188, 81);
             this.txtAvgRatio.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtAvgRatio.Name = "txtAvgRatio";
             this.txtAvgRatio.ReadOnly = true;
@@ -603,7 +603,7 @@
             // txtLTratio
             // 
             this.txtLTratio.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtLTratio.Location = new System.Drawing.Point(1190, 118);
+            this.txtLTratio.Location = new System.Drawing.Point(1189, 119);
             this.txtLTratio.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtLTratio.Name = "txtLTratio";
             this.txtLTratio.ReadOnly = true;
@@ -614,7 +614,7 @@
             // 
             this.label16.AutoSize = true;
             this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(10, 89);
+            this.label16.Location = new System.Drawing.Point(11, 90);
             this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(389, 26);
@@ -625,7 +625,7 @@
             // 
             this.label17.AutoSize = true;
             this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(16, 725);
+            this.label17.Location = new System.Drawing.Point(16, 724);
             this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(344, 26);
@@ -636,7 +636,7 @@
             // 
             this.label18.AutoSize = true;
             this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label18.Location = new System.Drawing.Point(416, 405);
+            this.label18.Location = new System.Drawing.Point(416, 404);
             this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(78, 20);
@@ -689,7 +689,7 @@
             // txtNumYrsTarg
             // 
             this.txtNumYrsTarg.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtNumYrsTarg.Location = new System.Drawing.Point(478, 454);
+            this.txtNumYrsTarg.Location = new System.Drawing.Point(479, 454);
             this.txtNumYrsTarg.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtNumYrsTarg.Name = "txtNumYrsTarg";
             this.txtNumYrsTarg.ReadOnly = true;
@@ -710,7 +710,7 @@
             // 
             this.label22.AutoSize = true;
             this.label22.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label22.Location = new System.Drawing.Point(808, 14);
+            this.label22.Location = new System.Drawing.Point(809, 14);
             this.label22.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(462, 26);
@@ -721,7 +721,7 @@
             // 
             this.label23.AutoSize = true;
             this.label23.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label23.Location = new System.Drawing.Point(412, 198);
+            this.label23.Location = new System.Drawing.Point(412, 199);
             this.label23.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(229, 26);
@@ -735,7 +735,7 @@
             this.Mean,
             this.SD,
             this.Count});
-            this.lstBins.Location = new System.Drawing.Point(406, 529);
+            this.lstBins.Location = new System.Drawing.Point(407, 529);
             this.lstBins.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.lstBins.Name = "lstBins";
             this.lstBins.Size = new System.Drawing.Size(252, 442);
@@ -861,7 +861,7 @@
             this.btnConvertToHourly.Location = new System.Drawing.Point(428, 92);
             this.btnConvertToHourly.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnConvertToHourly.Name = "btnConvertToHourly";
-            this.btnConvertToHourly.Size = new System.Drawing.Size(207, 38);
+            this.btnConvertToHourly.Size = new System.Drawing.Size(207, 39);
             this.btnConvertToHourly.TabIndex = 59;
             this.btnConvertToHourly.Text = "Convert to Hourly";
             this.btnConvertToHourly.UseVisualStyleBackColor = true;
@@ -872,7 +872,7 @@
             this.btnConvertMonthly.Location = new System.Drawing.Point(428, 146);
             this.btnConvertMonthly.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnConvertMonthly.Name = "btnConvertMonthly";
-            this.btnConvertMonthly.Size = new System.Drawing.Size(207, 38);
+            this.btnConvertMonthly.Size = new System.Drawing.Size(207, 39);
             this.btnConvertMonthly.TabIndex = 60;
             this.btnConvertMonthly.Text = "Convert to Monthly";
             this.btnConvertMonthly.UseVisualStyleBackColor = true;
@@ -887,7 +887,6 @@
             this.txtLoadedReference.ReadOnly = true;
             this.txtLoadedReference.Size = new System.Drawing.Size(776, 28);
             this.txtLoadedReference.TabIndex = 61;
-            this.txtLoadedReference.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label28
             // 
@@ -909,7 +908,6 @@
             this.txtLoadedTarget.ReadOnly = true;
             this.txtLoadedTarget.Size = new System.Drawing.Size(776, 28);
             this.txtLoadedTarget.TabIndex = 63;
-            this.txtLoadedTarget.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label29
             // 
@@ -924,7 +922,7 @@
             // 
             // btnUpdate_Conc_Plot
             // 
-            this.btnUpdate_Conc_Plot.Location = new System.Drawing.Point(670, 158);
+            this.btnUpdate_Conc_Plot.Location = new System.Drawing.Point(670, 159);
             this.btnUpdate_Conc_Plot.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnUpdate_Conc_Plot.Name = "btnUpdate_Conc_Plot";
             this.btnUpdate_Conc_Plot.Size = new System.Drawing.Size(123, 38);
@@ -978,7 +976,7 @@
             // 
             this.label31.AutoSize = true;
             this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label31.Location = new System.Drawing.Point(496, 342);
+            this.label31.Location = new System.Drawing.Point(496, 341);
             this.label31.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label31.Name = "label31";
             this.label31.Size = new System.Drawing.Size(79, 20);
@@ -989,7 +987,7 @@
             // 
             this.label32.AutoSize = true;
             this.label32.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label32.Location = new System.Drawing.Point(412, 338);
+            this.label32.Location = new System.Drawing.Point(413, 339);
             this.label32.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label32.Name = "label32";
             this.label32.Size = new System.Drawing.Size(56, 20);
@@ -1000,7 +998,7 @@
             // 
             this.label33.AutoSize = true;
             this.label33.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label33.Location = new System.Drawing.Point(412, 302);
+            this.label33.Location = new System.Drawing.Point(413, 302);
             this.label33.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label33.Name = "label33";
             this.label33.Size = new System.Drawing.Size(215, 26);
@@ -1012,7 +1010,7 @@
             this.btnExportMultitest.Location = new System.Drawing.Point(9, 991);
             this.btnExportMultitest.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnExportMultitest.Name = "btnExportMultitest";
-            this.btnExportMultitest.Size = new System.Drawing.Size(146, 72);
+            this.btnExportMultitest.Size = new System.Drawing.Size(145, 72);
             this.btnExportMultitest.TabIndex = 73;
             this.btnExportMultitest.Text = "Export Uncertainty Analysis\r\n\r\n";
             this.btnExportMultitest.UseVisualStyleBackColor = true;
@@ -1023,7 +1021,7 @@
             this.btnMCP_Uncert.Location = new System.Drawing.Point(279, 431);
             this.btnMCP_Uncert.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnMCP_Uncert.Name = "btnMCP_Uncert";
-            this.btnMCP_Uncert.Size = new System.Drawing.Size(110, 58);
+            this.btnMCP_Uncert.Size = new System.Drawing.Size(109, 59);
             this.btnMCP_Uncert.TabIndex = 74;
             this.btnMCP_Uncert.Text = "Run Uncert";
             this.btnMCP_Uncert.UseVisualStyleBackColor = true;
@@ -1031,26 +1029,26 @@
             // 
             // chtUncert
             // 
-            chartArea4.AxisX.Title = "Window Size (months)";
-            chartArea4.AxisY.Title = "LT Est. Target WS, m/s";
-            chartArea4.Name = "ChartArea1";
-            this.chtUncert.ChartAreas.Add(chartArea4);
-            legend4.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            legend4.Name = "Legend1";
-            this.chtUncert.Legends.Add(legend4);
-            this.chtUncert.Location = new System.Drawing.Point(674, 598);
+            chartArea2.AxisX.Title = "Window Size (months)";
+            chartArea2.AxisY.Title = "LT Est. Target WS, m/s";
+            chartArea2.Name = "ChartArea1";
+            this.chtUncert.ChartAreas.Add(chartArea2);
+            legend2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            legend2.Name = "Legend1";
+            this.chtUncert.Legends.Add(legend2);
+            this.chtUncert.Location = new System.Drawing.Point(673, 598);
             this.chtUncert.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chtUncert.Name = "chtUncert";
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series5.Legend = "Legend1";
-            series5.Name = "LT Est. WS";
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series6.Legend = "Legend1";
-            series6.Name = "LT Est, Avg";
-            this.chtUncert.Series.Add(series5);
-            this.chtUncert.Series.Add(series6);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series2.Legend = "Legend1";
+            series2.Name = "LT Est. WS";
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series3.Legend = "Legend1";
+            series3.Name = "LT Est, Avg";
+            this.chtUncert.Series.Add(series2);
+            this.chtUncert.Series.Add(series3);
             this.chtUncert.Size = new System.Drawing.Size(712, 360);
             this.chtUncert.TabIndex = 75;
             this.chtUncert.Text = "chtWS_Uncert";
@@ -1059,7 +1057,7 @@
             // 
             this.label34.AutoSize = true;
             this.label34.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label34.Location = new System.Drawing.Point(1348, -48);
+            this.label34.Location = new System.Drawing.Point(1349, -48);
             this.label34.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label34.Name = "label34";
             this.label34.Size = new System.Drawing.Size(272, 26);
@@ -1075,10 +1073,11 @@
             this.lstUncert.Location = new System.Drawing.Point(1398, 602);
             this.lstUncert.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.lstUncert.Name = "lstUncert";
-            this.lstUncert.Size = new System.Drawing.Size(242, 359);
+            this.lstUncert.Size = new System.Drawing.Size(242, 360);
             this.lstUncert.TabIndex = 76;
             this.lstUncert.UseCompatibleStateImageBehavior = false;
             this.lstUncert.View = System.Windows.Forms.View.Details;
+            this.lstUncert.SelectedIndexChanged += new System.EventHandler(this.lstUncert_SelectedIndexChanged);
             // 
             // Window
             // 
@@ -1097,7 +1096,7 @@
             // 
             // btnResetDates
             // 
-            this.btnResetDates.Location = new System.Drawing.Point(10, 1075);
+            this.btnResetDates.Location = new System.Drawing.Point(10, 1076);
             this.btnResetDates.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnResetDates.Name = "btnResetDates";
             this.btnResetDates.Size = new System.Drawing.Size(144, 40);
@@ -1108,10 +1107,10 @@
             // 
             // btnResetConcDates
             // 
-            this.btnResetConcDates.Location = new System.Drawing.Point(27, 618);
+            this.btnResetConcDates.Location = new System.Drawing.Point(27, 619);
             this.btnResetConcDates.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnResetConcDates.Name = "btnResetConcDates";
-            this.btnResetConcDates.Size = new System.Drawing.Size(117, 58);
+            this.btnResetConcDates.Size = new System.Drawing.Size(117, 59);
             this.btnResetConcDates.TabIndex = 79;
             this.btnResetConcDates.Text = "Reset Conc Period";
             this.btnResetConcDates.UseVisualStyleBackColor = true;
@@ -1129,7 +1128,7 @@
             this.aboutMCPToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1705, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1701, 33);
             this.menuStrip1.TabIndex = 80;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1229,7 +1228,7 @@
             // 
             this.label36.AutoSize = true;
             this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label36.Location = new System.Drawing.Point(808, 162);
+            this.label36.Location = new System.Drawing.Point(809, 161);
             this.label36.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label36.Name = "label36";
             this.label36.Size = new System.Drawing.Size(133, 25);
@@ -1242,10 +1241,10 @@
             this.cboHourInt.FormattingEnabled = true;
             this.cboHourInt.Items.AddRange(new object[] {
             "All Hours"});
-            this.cboHourInt.Location = new System.Drawing.Point(950, 158);
+            this.cboHourInt.Location = new System.Drawing.Point(950, 159);
             this.cboHourInt.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cboHourInt.Name = "cboHourInt";
-            this.cboHourInt.Size = new System.Drawing.Size(146, 30);
+            this.cboHourInt.Size = new System.Drawing.Size(147, 30);
             this.cboHourInt.TabIndex = 83;
             this.cboHourInt.Text = "All Hours";
             this.cboHourInt.SelectedIndexChanged += new System.EventHandler(this.cboHourInt_SelectedIndexChanged);
@@ -1281,7 +1280,7 @@
             // 
             this.label37.AutoSize = true;
             this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label37.Location = new System.Drawing.Point(1366, 162);
+            this.label37.Location = new System.Drawing.Point(1367, 162);
             this.label37.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label37.Name = "label37";
             this.label37.Size = new System.Drawing.Size(112, 25);
@@ -1294,10 +1293,10 @@
             this.cboTemp_Int.FormattingEnabled = true;
             this.cboTemp_Int.Items.AddRange(new object[] {
             "All Temps"});
-            this.cboTemp_Int.Location = new System.Drawing.Point(1496, 158);
+            this.cboTemp_Int.Location = new System.Drawing.Point(1496, 159);
             this.cboTemp_Int.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cboTemp_Int.Name = "cboTemp_Int";
-            this.cboTemp_Int.Size = new System.Drawing.Size(140, 30);
+            this.cboTemp_Int.Size = new System.Drawing.Size(141, 30);
             this.cboTemp_Int.TabIndex = 89;
             this.cboTemp_Int.Text = "All Temps";
             this.cboTemp_Int.SelectedIndexChanged += new System.EventHandler(this.cboTemp_Int_SelectedIndexChanged);
@@ -1358,7 +1357,7 @@
             // 
             // txtUTMX
             // 
-            this.txtUTMX.Location = new System.Drawing.Point(276, 798);
+            this.txtUTMX.Location = new System.Drawing.Point(276, 799);
             this.txtUTMX.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtUTMX.Name = "txtUTMX";
             this.txtUTMX.Size = new System.Drawing.Size(108, 26);
@@ -1368,7 +1367,7 @@
             // 
             this.label41.AutoSize = true;
             this.label41.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label41.Location = new System.Drawing.Point(165, 769);
+            this.label41.Location = new System.Drawing.Point(165, 770);
             this.label41.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label41.Name = "label41";
             this.label41.Size = new System.Drawing.Size(91, 20);
@@ -1429,7 +1428,7 @@
             this.btnExportAnnualTABs.Location = new System.Drawing.Point(9, 918);
             this.btnExportAnnualTABs.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btnExportAnnualTABs.Name = "btnExportAnnualTABs";
-            this.btnExportAnnualTABs.Size = new System.Drawing.Size(146, 60);
+            this.btnExportAnnualTABs.Size = new System.Drawing.Size(145, 60);
             this.btnExportAnnualTABs.TabIndex = 103;
             this.btnExportAnnualTABs.Text = "Export Annual TAB files\r\n";
             this.btnExportAnnualTABs.UseVisualStyleBackColor = true;
@@ -1442,7 +1441,7 @@
             this.cboTAB_bins.Items.AddRange(new object[] {
             "16",
             "24"});
-            this.cboTAB_bins.Location = new System.Drawing.Point(309, 898);
+            this.cboTAB_bins.Location = new System.Drawing.Point(309, 899);
             this.cboTAB_bins.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cboTAB_bins.Name = "cboTAB_bins";
             this.cboTAB_bins.Size = new System.Drawing.Size(61, 30);
@@ -1464,7 +1463,7 @@
             // 
             this.label46.AutoSize = true;
             this.label46.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label46.Location = new System.Drawing.Point(274, 502);
+            this.label46.Location = new System.Drawing.Point(274, 501);
             this.label46.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label46.Name = "label46";
             this.label46.Size = new System.Drawing.Size(107, 34);
@@ -1480,7 +1479,7 @@
             "2",
             "3",
             "4"});
-            this.cboUncertStep.Location = new System.Drawing.Point(298, 545);
+            this.cboUncertStep.Location = new System.Drawing.Point(299, 544);
             this.cboUncertStep.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cboUncertStep.Name = "cboUncertStep";
             this.cboUncertStep.Size = new System.Drawing.Size(61, 33);
@@ -1492,7 +1491,7 @@
             // 
             this.label47.AutoSize = true;
             this.label47.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label47.Location = new System.Drawing.Point(176, 945);
+            this.label47.Location = new System.Drawing.Point(176, 944);
             this.label47.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label47.Name = "label47";
             this.label47.Size = new System.Drawing.Size(112, 20);
@@ -1514,7 +1513,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1705, 1147);
+            this.ClientSize = new System.Drawing.Size(1701, 1152);
             this.Controls.Add(this.txtTAB_WS_bin);
             this.Controls.Add(this.label47);
             this.Controls.Add(this.cboUncertStep);
@@ -1641,16 +1640,20 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnImportRef;
         private System.Windows.Forms.Button btnImportTarget;
+        private System.Windows.Forms.Button btnRunMCP;
         private System.Windows.Forms.Button btnExportTS;
         private System.Windows.Forms.Button btnExportTAB;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cboNumWD;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox txtRefAvgWS;
         private System.Windows.Forms.TextBox txtTargAvgWS;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox txtWS_bin_width;
+        private System.Windows.Forms.ComboBox cboWD_sector;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.DataVisualization.Charting.Chart chtScatter;
         private System.Windows.Forms.Label label4;
@@ -1658,7 +1661,9 @@
         private System.Windows.Forms.TextBox txtTarg_LT_WS;
         private System.Windows.Forms.OpenFileDialog ofdRefSite;
         private System.Windows.Forms.Button btnClearRef;
+        private System.Windows.Forms.DateTimePicker date_Corr_Start;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.DateTimePicker date_Corr_End;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Button btnClearTarget;
         private System.Windows.Forms.Label label12;
@@ -1711,6 +1716,7 @@
         private System.Windows.Forms.Label label32;
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.Button btnExportMultitest;
+        private System.Windows.Forms.Button btnMCP_Uncert;
         private System.Windows.Forms.DataVisualization.Charting.Chart chtUncert;
         private System.Windows.Forms.Label label34;
         private System.Windows.Forms.ListView lstUncert;
@@ -1727,11 +1733,18 @@
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.OpenFileDialog ofdOpenMCP;
         private System.Windows.Forms.Label label35;
+        private System.Windows.Forms.ComboBox cboNumHours;
         private System.Windows.Forms.Label label36;
+        private System.Windows.Forms.ComboBox cboHourInt;
         private System.Windows.Forms.Label label39;
+        private System.Windows.Forms.ComboBox cboNumTemps;
         private System.Windows.Forms.Label label37;
+        private System.Windows.Forms.ComboBox cboTemp_Int;
+        private System.Windows.Forms.TextBox txtWS_PDF_Wgt;
         private System.Windows.Forms.Label label38;
+        private System.Windows.Forms.TextBox txtLast_WS_Wgt;
         private System.Windows.Forms.Label label40;
         private System.Windows.Forms.TextBox txtTargetName;
         private System.Windows.Forms.TextBox txtUTMX;
@@ -1746,25 +1759,11 @@
         private System.Windows.Forms.Label label45;
         private System.Windows.Forms.FolderBrowserDialog TABfolder;
         private System.Windows.Forms.Label label46;
+        private System.Windows.Forms.ComboBox cboUncertStep;
         private System.Windows.Forms.ToolStripMenuItem aboutMCPToolStripMenuItem;
         private System.Windows.Forms.Label label47;
+        private System.Windows.Forms.TextBox txtTAB_WS_bin;
         public System.Windows.Forms.ComboBox cboMCP_Type;
-        public System.Windows.Forms.TextBox txtTAB_WS_bin;
-        public System.Windows.Forms.ComboBox cboWD_sector;
-        public System.Windows.Forms.ComboBox cboHourInt;
-        public System.Windows.Forms.ComboBox cboTemp_Int;
-        public System.Windows.Forms.ComboBox cboNumWD;
-        public System.Windows.Forms.ComboBox cboNumHours;
-        public System.Windows.Forms.ComboBox cboNumTemps;
-        public System.Windows.Forms.TextBox txtWS_PDF_Wgt;
-        public System.Windows.Forms.TextBox txtLast_WS_Wgt;
-        public System.Windows.Forms.ComboBox cboUncertStep;
-        public System.Windows.Forms.Button btnRunMCP;
-        public System.Windows.Forms.Button btnMCP_Uncert;
-        public System.Windows.Forms.TextBox txtWS_bin_width;
-        public System.Windows.Forms.DateTimePicker date_Corr_Start;
-        public System.Windows.Forms.DateTimePicker date_Corr_End;
-        public System.Windows.Forms.OpenFileDialog ofdOpenMCP;
     }
 }
 
