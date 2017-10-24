@@ -176,7 +176,7 @@ namespace MCP_Tests
             MCP_tool ThisMCP = new MCP_tool();
             
             string PC_Name = Get_PC_Name();                   
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
 
             ThisMCP.Import_Reference_data(filename);
 
@@ -331,10 +331,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             // Test 1
@@ -395,10 +395,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             float[] Avg_WS_WD; // 0: Target WS; 1: Reference WS; 2: Data Count'
@@ -434,10 +434,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 8;
@@ -498,7 +498,7 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
                         
             // Test 1
@@ -538,7 +538,7 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
             // Test 1
@@ -623,10 +623,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 8;
@@ -656,10 +656,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 1;
@@ -692,10 +692,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.WS_bin_width = 1;
@@ -740,12 +740,13 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
             ThisMCP.cboMCP_Type.SelectedIndex = 0; // orthogonal
+            ThisMCP.Num_WD_Sectors = 1;
 
             ThisMCP.Do_MCP_Uncertainty();
                        
@@ -758,12 +759,13 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
             ThisMCP.cboMCP_Type.SelectedIndex = 0; // orthogonal
+            ThisMCP.Num_WD_Sectors = 1;
 
             ThisMCP.Do_MCP_Uncertainty();
             
@@ -780,7 +782,7 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
             Assert.AreEqual(ThisMCP.Ref_Data.Length / 365.0 / 24.0, 31.01, 0.01, "Wrong reference data length");
@@ -1007,7 +1009,7 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             Stats Stat = new Stats();
@@ -1023,10 +1025,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Find_Concurrent_Data(true, ThisMCP.Conc_Start, ThisMCP.Conc_End);
@@ -1043,7 +1045,7 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
                        
             ThisMCP.Num_WD_Sectors = 16;
@@ -1074,7 +1076,7 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
             ThisMCP.Num_WD_Sectors = 16;
@@ -1107,10 +1109,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 16;
@@ -1121,15 +1123,15 @@ namespace MCP_Tests
             ThisMCP.Do_MCP(ThisMCP.Conc_Start, ThisMCP.Conc_End, true, "Orth. Regression");
 
             ThisMCP.New_MCP(true, true);
-            Assert.AreEqual(ThisMCP.Get_Num_WD(), 1, 0, "Didn't reset the number of WD sectors");
+            Assert.AreEqual(ThisMCP.Get_Num_WD(), 16, 0, "Didn't reset the number of WD sectors");
             Assert.AreEqual(ThisMCP.Got_Conc, false, "Didn't reset the concurrent data");
             Assert.AreEqual(ThisMCP.Got_Ref, false, "Didn't reset the reference data");
             Assert.AreEqual(ThisMCP.Got_Targ, false, "Didn't reset the target data");
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Do_MCP(ThisMCP.Conc_Start, ThisMCP.Conc_End, true, "Orth. Regression");
@@ -1145,10 +1147,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 16;
@@ -1171,10 +1173,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 16;
@@ -1196,10 +1198,10 @@ namespace MCP_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.Num_WD_Sectors = 16;
@@ -1221,10 +1223,10 @@ namespace MCP_Tests
             MCP_tool ThisMCP = new MCP_tool();
 
             string PC_Name = Get_PC_Name();
-            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
 
-            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            filename = "C:\\Users\\" + PC_Name + "\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             ThisMCP.date_Corr_Start.Value = Convert.ToDateTime("12/1/2008 19:00:00");

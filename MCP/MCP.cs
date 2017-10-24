@@ -4,9 +4,9 @@
 // summary:	Imports reference and target WS and WD data and performs Measure-Correlate-Predict
 // to estimate long-term wind speeds at target site. 
 // Authors: Liz Walls, Andrew Rapin
-// Reviewer:
-// Version Number: 1.2
-// Release Date: 11/2/2016
+// Reviewer: Liz Walls
+// Version Number: 1.0
+// Release Date: 10/19/2017
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
@@ -27,7 +27,10 @@ namespace MCP
 {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>   Main Form of MCP tool. </summary>
+    ///
+    /// <remarks>   OEE, 10/19/2017. </remarks>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
+
     [Serializable()]
     public partial class MCP_tool : Form
     {
@@ -39,7 +42,13 @@ namespace MCP
         public DateTime Target_Start;
         /// <summary>   End Date/Time of Target site data. </summary>
         public DateTime Target_End;
-        /// <summary>   Start Date/Time of the concurrent data (i.e. overlap between Reference and Target) . </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Start Date/Time of the concurrent data (i.e. overlap between Reference and Target) .
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public DateTime Conc_Start;
         /// <summary>   End Date/Time of the concurrent data. </summary>
         public DateTime Conc_End;
@@ -48,21 +57,40 @@ namespace MCP
         /// <summary>   End Date/Time of the export interval. </summary>
         DateTime Export_End;
 
-        /// <summary>   Array of type Site_data for Reference site. Each Site_data entry contains Date, WS, WD and Temp. </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type Site_data for Reference site. Each Site_data entry contains Date, WS, WD and
+        /// Temp.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public Site_data[] Ref_Data = new Site_data[0];
         /// <summary>   True if reference data has been imported. </summary>
         public bool Got_Ref = false;
         /// <summary>   Filename of the reference site data file. </summary>
         string Ref_filename = "";
-        /// <summary>   Array of type Site_data for Target site. Each Site_data entry contains Date/Time, WS, WD and Temp. </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type Site_data for Target site. Each Site_data entry contains Date/Time, WS, WD and
+        /// Temp.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public Site_data[] Target_Data = new Site_data[0];
         /// <summary>   True if target data has been imported. </summary>
         public bool Got_Targ = false;
         /// <summary>   Filename of the target site data file. </summary>
         string Target_filename = "";
 
-        /// <summary>   Array of type Concurrent_data where each entry contains Date/Time, Ref_WS, Ref_WD, Ref_Temp Target_WS, Target_WD.
-        ///             This array holds the concurrent data for a specified window (i.e. not necessarily all concurrent data) </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type Concurrent_data where each entry contains Date/Time, Ref_WS, Ref_WD, Ref_Temp
+        /// Target_WS, Target_WD. This array holds the concurrent data for a specified window (i.e. not
+        /// necessarily all concurrent data)
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public Concurrent_data[] Conc_Data = new Concurrent_data[0];
         /// <summary>   True if conccurent data is defined. </summary>
         public bool Got_Conc = false;
@@ -70,17 +98,46 @@ namespace MCP
         /// <summary>   Array of type Concurrent_data which holds ALL concurrent data. </summary>
         Concurrent_data[] Conc_Data_All = new Concurrent_data[0];
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Number of Wind Direction sectors to conduct MCP. </summary>
+        ///
+        /// <value> The total number of wd sectors. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Num_WD_Sectors { get; set; }
-        /// <summary>   Width of the Wind Speed bin used in Method of Bins and Matrix-LastWS methods. </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Width of the Wind Speed bin used in Method of Bins and Matrix-LastWS methods.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float WS_bin_width = 1;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Number of Hourly intervals to conduct MCP. </summary>
+        ///
+        /// <value> The total number of hourly ints. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Num_Hourly_Ints { get; set; }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Number of temperature bins to conduct MCP. </summary>
+        ///
+        /// <value> The total number of temporary bins. </value>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Num_Temp_bins { get; set; }
 
         // Matrix-LastWS weights
-        /// <summary>   Weight factor to apply to estimate from defined Reference-Target WS Matrix. </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Weight factor to apply to estimate from defined Reference-Target WS Matrix.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float Matrix_Wgt = 1;
         /// <summary>   Weight factor to apply to estiamte from defined WS-LastWS Matrix. </summary>
         public float LastWS_Wgt = 1;
@@ -90,8 +147,13 @@ namespace MCP
         /// <summary>   Maximum temperature in each WD sector (i) and each hourly interval (j) </summary>
         public float[,] Max_Temp = new float[1, 1];
 
-        /// <summary> Array containing standard deviation of wind speed change at target site for each WS interval. 
-        ///           Used to create Last WS CDF to multiply with Matrix WS PDF in Matrix-LastWS method. </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array containing standard deviation of wind speed change at target site for each WS interval.
+        /// Used to create Last WS CDF to multiply with Matrix WS PDF in Matrix-LastWS method.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] SD_WS_Lag = new float[0];
 
         /// <summary>   Object of type Lin_MCP conatining results of orthogonal regression MCP. </summary>
@@ -106,57 +168,101 @@ namespace MCP
         /// <summary>   Size of the window step size (in months) used in uncertainty calculations. </summary>
         int Uncert_Step_size = 1;
 
-        /// <summary>   Array of type MCP_Uncert containing results of uncertainty analysis using orthogonal regression. </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type MCP_Uncert containing results of uncertainty analysis using orthogonal
+        /// regression.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public MCP_Uncert[] Uncert_Ortho = new MCP_Uncert[0];
-        /// <summary>   Array of type MCP_Uncert containing results of uncertainty analysis using Method of Bins </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type MCP_Uncert containing results of uncertainty analysis using Method of Bins.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public MCP_Uncert[] Uncert_Bins = new MCP_Uncert[0];
-        /// <summary>   Array of type MCP_Uncert containing results of uncertainty analysis using variance method </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type MCP_Uncert containing results of uncertainty analysis using variance method.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public MCP_Uncert[] Uncert_Varrat = new MCP_Uncert[0];
-        /// <summary>   Array of type MCP_Uncert containing results of uncertainty analysis using Matrix-LastWS </summary>
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type MCP_Uncert containing results of uncertainty analysis using Matrix-LastWS.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public MCP_Uncert[] Uncert_Matrix = new MCP_Uncert[0];
 
-        /// <summary> Array of type Sector_count_bin containing the data count in each WD, hourly and temperature bin. </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Array of type Sector_count_bin containing the data count in each WD, hourly and temperature
+        /// bin.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         Sector_count_bin[] Sectors = new Sector_count_bin[0];
 
-        /// <summary>   Object of type Stats used to perform statistics calcs such as variance and co-variance calculations. </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>
+        /// Object of type Stats used to perform statistics calcs such as variance and co-variance
+        /// calculations.
+        /// </summary>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public Stats Stat = new Stats();
         /// <summary>   Filename of the saved MCP file. </summary>
         string Saved_Filename = "";
 
         /// <summary>   True if this analysis is a newly opened file. </summary>
         bool Is_Newly_Opened_File = false;
-                
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>
         /// Structure defined for uncertainty calculation where multiple windows of varying sizes are
         /// used to generate LT Ests.
         /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct MCP_Uncert
         {
-            /// <summary> Window size of concurrent WS data interval in months. </summary>
+            /// <summary>   Window size of concurrent WS data interval in months. </summary>
             public int WSize; 
             
-            /// <summary>  Number of concurrent WS windows. </summary>
+            /// <summary>   Number of concurrent WS windows. </summary>
             public int NWindows;
                         
-            /// <summary> Array of long-term WS estimates generated from each concurrent WS window. </summary>
+            /// <summary>   Array of long-term WS estimates generated from each concurrent WS window. </summary>
             public double[] LT_Ests;
 
-            /// <summary> Average LT WS Estimates. </summary>
+            /// <summary>   Average LT WS Estimates. </summary>
             public float avg;
             
-            /// <summary> Standard deviation of LT WS Estimates. </summary>
+            /// <summary>   Standard deviation of LT WS Estimates. </summary>
             public float std_dev;
 
-            /// <summary> Start of data period used in uncertainty analysis. </summary>
+            /// <summary>   Start of data period used in uncertainty analysis. </summary>
             public DateTime[] Start;
 
-            /// <summary> End of data period used in uncertainty analysis. </summary>
+            /// <summary>   End of data period used in uncertainty analysis. </summary>
             public DateTime[] End;
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
             /// <summary>   Clears this MCP_Uncert object to its blank/initial state. </summary>
+            ///
+            /// <remarks>   OEE, 10/19/2017. </remarks>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public void Clear()
             {
                 WSize = 0;
@@ -172,15 +278,20 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Structure defined to hold reference and target wind speed, wind direction and 
-        ///           temperature time series data  (Serializable) a site data. </summary>
+        /// <summary>
+        /// Structure defined to hold reference and target wind speed, wind direction and temperature
+        /// time series data  (Serializable) a site data.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Site_data
         {
-            /// <summary>  Time stamp </summary>
+            /// <summary>   Time stamp. </summary>
             public DateTime This_Date;
-            /// <summary>   Wind Speed </summary>
+            /// <summary>   Wind Speed. </summary>
             public float This_WS;
             /// <summary>   Wind direction (degs). </summary>
             public float This_WD;
@@ -189,9 +300,14 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Structure defined to hold concurrent reference and target wind speed and wind 
-        ///            direction time series plus temperature at reference site. </summary>
+        /// <summary>
+        /// Structure defined to hold concurrent reference and target wind speed and wind direction time
+        /// series plus temperature at reference site.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Concurrent_data
         {
@@ -210,16 +326,40 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Struture defined to hold linear MCP statistics (such as orthogonol or variance methods)
+        /// <summary>
+        /// Struture defined to hold linear MCP statistics (such as orthogonol or variance methods)
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Lin_MCP
         {
-            /// <summary> Slope of linear MCP methods for each WD sector and each hourly interval and each temp interval. </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Slope of linear MCP methods for each WD sector and each hourly interval and each temp
+            /// interval.
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public float[,,] Slope;
-            /// <summary> Intercept of linear MCP methods for each WD sector and each hourly interval and each temp interval. </summary>
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Intercept of linear MCP methods for each WD sector and each hourly interval and each temp
+            /// interval.
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public float[,,] Intercept;
-            /// <summary> R^2 of linear MCP methods for WD and each hourly interval and each temp interval. </summary>
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// R^2 of linear MCP methods for WD and each hourly interval and each temp interval.
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public float[,,] R_sq;
             /// <summary>   Slope of linear MCP methods for all data (all WD, all hours) </summary>
             public float All_Slope;
@@ -228,11 +368,21 @@ namespace MCP
             /// <summary>   R^2 of linear MCP methods for all data (all WD, all hours) </summary>
             public float All_R_sq;
 
-            /// <summary> Time series of wind speed estimated at target site based on linear MCP methods and 
-            ///           reference WS and WD (WD is same as Ref site WD) </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Time series of wind speed estimated at target site based on linear MCP methods and reference
+            /// WS and WD (WD is same as Ref site WD)
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public Site_data[] LT_WS_Est;
-                        
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
             /// <summary>   Clears Lin_MCP object to its blank state. </summary>
+            ///
+            /// <remarks>   OEE, 10/19/2017. </remarks>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public void Clear()
             {
                 Slope = null;
@@ -243,20 +393,38 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Structure defined to hold Method of Bins MCP statistics. </summary>        
+        /// <summary>   Structure defined to hold Method of Bins MCP statistics. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Method_of_Bins
         {
-            /// <summary> Array of type Bin_Object containing average ratio, standard deviation of ratio 
-            ///           and bin count for each WS and WD bin (i = WS bin, j = WD bin.) </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Array of type Bin_Object containing average ratio, standard deviation of ratio and bin count
+            /// for each WS and WD bin (i = WS bin, j = WD bin.)
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public Bin_Object[,] Bin_Avg_SD_Cnt;
 
-            /// <summary> Array of type Site_data containing time series of wind speed and wind direction
-            ///           estimated at target site based on method of bins (WD is same as Ref site WD) </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Array of type Site_data containing time series of wind speed and wind direction estimated at
+            /// target site based on method of bins (WD is same as Ref site WD)
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public Site_data[] LT_WS_Est;
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
             /// <summary>   Clears this Method_of_Bins object to its blank state. </summary>
+            ///
+            /// <remarks>   OEE, 10/19/2017. </remarks>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public void Clear()
             {
                 Bin_Avg_SD_Cnt = null;
@@ -265,36 +433,61 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Structure defined to contain average and standard deviation of wind speed ratio 
-        ///             and data count used in Method of Bins MCP. </summary>
+        /// <summary>
+        /// Structure defined to contain average and standard deviation of wind speed ratio and data
+        /// count used in Method of Bins MCP.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Bin_Object
         {
-            /// <summary> Average wind speed ratio. </summary>
+            /// <summary>   Average wind speed ratio. </summary>
             public float Avg_WS_Ratio;
-            /// <summary> Standard deviation of wind speed ratio. </summary>
+            /// <summary>   Standard deviation of wind speed ratio. </summary>
             public float SD_WS_Ratio;
-            /// <summary> Bin count. </summary>
+            /// <summary>   Bin count. </summary>
             public float Count;
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Structure defined to hold Matrix cumulative distribution functions and
-        ///            long-term estimated wind speeds. </summary>
+        /// <summary>
+        /// Structure defined to hold Matrix cumulative distribution functions and long-term estimated
+        /// wind speeds.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Matrix_Obj
         {
-            /// <summary> Array of type CDF_Obj which contain wind speed cumulative distribution functions
-            ///           which define probability of a WS at target occurring given a WS at the reference site. </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Array of type CDF_Obj which contain wind speed cumulative distribution functions which define
+            /// probability of a WS at target occurring given a WS at the reference site.
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public CDF_Obj[] WS_CDFs;
-            /// <summary> Array of type Site_data containing time series of wind speed and wind direction
-            ///           estimated at target site based on Matrix-LastWS method (WD is same as Ref site WD) </summary>
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// <summary>
+            /// Array of type Site_data containing time series of wind speed and wind direction estimated at
+            /// target site based on Matrix-LastWS method (WD is same as Ref site WD)
+            /// </summary>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public Site_data[] LT_WS_Est;
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             /// <summary>   Clears this object to its initial state. </summary>
+            ///
+            /// <remarks>   OEE, 10/19/2017. </remarks>
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
             public void Clear()
             {
                 WS_CDFs = null;
@@ -303,8 +496,14 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Structure defined to hold statistics and variables associated with cumulative distribution functions. </summary>
+        /// <summary>
+        /// Structure defined to hold statistics and variables associated with cumulative distribution
+        /// functions.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct CDF_Obj
         {
@@ -333,24 +532,30 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Structure to store sector counts as a function of bins </summary>        
+        /// <summary>   Structure to store sector counts as a function of bins. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         [Serializable()]
         public struct Sector_count_bin
         {
-            /// <summary>  Wind direction index. </summary>
+            /// <summary>   Wind direction index. </summary>
             public int WD;
-            /// <summary> Hourly index. </summary>
+            /// <summary>   Hourly index. </summary>
             public int Hour;
-            /// <summary> Temperature index. </summary>
+            /// <summary>   Temperature index. </summary>
             public int Temp;
-            /// <summary> Data count in bin. </summary>
+            /// <summary>   Data count in bin. </summary>
             public int Count;
         }        
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Default constructor. </summary>        
+        /// <summary>   Default constructor. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public MCP_tool()
         {
             InitializeComponent();
@@ -363,9 +568,13 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Event handler. Called when 'Import Reference data' button is clicked. </summary>
-        /// 
-        /// <remarks> Liz, 5/26/2017. Tested outside of Visual Studio </remarks>
-        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+        /// <remarks>   Liz, 5/26/2017. Tested outside of Visual Studio. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnImportRef_Click(object sender, EventArgs e)
         {
 
@@ -397,9 +606,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Imports reference wind speed, wind direction and temperature data.
+        /// <summary>   Imports reference wind speed, wind direction and temperature data. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <param name="filename"> Filename of the reference datafile. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Import_Reference_data(string filename)
 
         {
@@ -526,10 +739,15 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gets the wind speed width entered on form for Method of Bins or Matrix-LastWS MCP. </summary>
-        /// <remarks> Liz, 5/26/2017 </remarks>
+        /// <summary>
+        /// Gets the wind speed width entered on form for Method of Bins or Matrix-LastWS MCP.
+        /// </summary>
+        ///
+        /// <remarks>   Liz, 5/26/2017. </remarks>
+        ///
         /// <returns>   The wind speed interval to use in Method of Bins or Matrix-LastWS MCP. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float Get_WS_width_for_MCP()
         {            
             return WS_bin_width;
@@ -537,9 +755,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets the wind speed interval to use in TAB file export. </summary>
-        /// <remarks> Liz, 5/26/2017, Not tested since it is a simple textbox to  </remarks>
+        ///
+        /// <remarks>   Liz, 5/26/2017, Not tested since it is a simple textbox to. </remarks>
+        ///
         /// <returns>   The wind speed interval used in TAB file export. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float Get_TAB_export_WS_width()
         {            
             float TAB_WS_bin = Convert.ToSingle(txtTAB_WS_bin.Text);
@@ -548,8 +769,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets the wind direction index to show on the main plot. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The wind direction index to plot. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_WD_ind_to_plot()
         {
             // Read selected WD sector to show in plot
@@ -574,8 +799,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets hourly index to show on main plot. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The hourly index to plot. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Hourly_ind_to_plot()
         {
             // Read selected WD sector to show in plot
@@ -600,8 +829,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets temperature index to show on main plot. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The temperature index to plot. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Temp_Ind_to_plot()
         {
             int Temp_ind = 0;
@@ -627,8 +860,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets the number of wind direction sectors used in MCP. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The number of wind direction sectors. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Num_WD()
         {                        
             return Num_WD_Sectors;
@@ -636,8 +873,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets number hourly ints. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The number hourly ints. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Num_Hourly_Ints()
         {
             return Num_Hourly_Ints;
@@ -645,6 +886,9 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets number temperature intervals used in MCP. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The number of temperature intervals. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -655,8 +899,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets MCP method selected on main form. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The MCP method string. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public string Get_MCP_Method()
         {
             string MCP_Method = "";
@@ -673,8 +921,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets the WS Matrix PDF weight to use in Matrix-LastWS method. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The Matrix WS PDF weight. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float Get_WS_PDF_Weight()
         {
             // Returns WS PDF weight to be used in Matrix-Last_WS method            
@@ -683,8 +935,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets the LastWS PDF weight to use in Matrix-LastWS method. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The LastWS PDF weight. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float Get_Last_WS_Weight()
         {
             // Returns Last WS weight to be used in Matrix-Last_WS method            
@@ -693,10 +949,15 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Calculates WD index of entered wind direction . </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <param name="This_WD">  Wind direction in degrees. </param>
         /// <param name="Num_WD">   Number of wind direction sectors. </param>
+        ///
         /// <returns>   The wind direction index corresponding to entered wind direction. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_WD_ind(float This_WD, int Num_WD)
         {            
             int WD_ind = (int)Math.Round(This_WD / (360 / (double)Num_WD),0, MidpointRounding.AwayFromZero);
@@ -708,10 +969,15 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Calculates WS index of entered wind speed. </summary>
-        /// <param name="This_WS"> Wind Speed </param>
-        /// <param name="Bin_width"> Width of WS bin. </param>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="This_WS">      Wind Speed. </param>
+        /// <param name="Bin_width">    Width of WS bin. </param>
+        ///
         /// <returns>   The wind speed index corresponding to entered wind speed. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_WS_ind(float This_WS, float Bin_width)
         {
             int WS_ind = 0;
@@ -723,8 +989,12 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets uncertainty analysis step size as entered on form. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   The step size (in months) of uncertainty analysis. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Uncert_Step_Size()
         {            
             return Uncert_Step_size;
@@ -732,7 +1002,10 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Searches and finds the minimum and maximum temperature. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Find_Min_Max_temp()
         {
             Min_Temp = new float[Get_Num_WD(), Get_Num_Hourly_Ints()];
@@ -751,10 +1024,16 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Generates a cumulative distribution functions (CDF) of target wind speed 
-        ///             distribution for each specified WD, hour and temperature bin. </summary>
+        /// <summary>
+        /// Generates a cumulative distribution functions (CDF) of target wind speed distribution for
+        /// each specified WD, hour and temperature bin.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <returns>   An array of type CDF_Obj which contains the CDF, bin indices, etc. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public CDF_Obj[] Generate_Matrix_CDFs()
         {
             // calculates WS cumulative distribution functions for every WD, hourly, temperature and WS bin
@@ -865,15 +1144,23 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Calculates and returns the average target WS [0], reference WS [1] and data count [2]  
-        ///           during the concurrent period for specified WD, Hourly and temperature index </summary>
-        /// <param name="WD_ind"> Wind direction index. </param>
-        /// <param name="Hour_ind"> Hourly index </param>
-        /// <param name="Temp_ind"> Temperature index </param>
-        /// <param name="Get_All"> If true, then to get average of all concurrent data. </param>
+        /// <summary>
+        /// Calculates and returns the average target WS [0], reference WS [1] and data count [2]  
+        /// during the concurrent period for specified WD, Hourly and temperature index.
+        /// </summary>
         ///
-        /// <returns>   An array of type float containint: 0: Target WS; 1: Reference WS; 2: Data Count'. </returns>
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="WD_ind">   Wind direction index. </param>
+        /// <param name="Hour_ind"> Hourly index. </param>
+        /// <param name="Temp_ind"> Temperature index. </param>
+        /// <param name="Get_All">  If true, then to get average of all concurrent data. </param>
+        ///
+        /// <returns>
+        /// An array of type float containint: 0: Target WS; 1: Reference WS; 2: Data Count'.
+        /// </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] Get_Conc_Avgs_Count(int WD_ind, int Hour_ind, int Temp_ind, bool Get_All)
         {
             float[] Avg_WS_WD = { 0, 0, 0 }; // 0: Target WS; 1: Reference WS; 2: Data Count'
@@ -907,19 +1194,27 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Returns array of WS for either the target or reference site for specified WD, hourly 
-        ///           and temp indices for concurrent data set (defined using function Find_Concurrent_Data) </summary>
-        /// <param name="Target_or_Ref"> flag to specifiy target or reference WS. </param>
-        /// <param name="WD_ind"> Wind direction index. </param>
-        /// <param name="Hourly_ind"> Hourly index. </param>
-        /// <param name="Temp_ind">Temperature index. </param>
-        /// <param name="Min_WS"> Minimum ws. </param>
-        /// <param name="Max_WS"> Maximum ws. </param>
-        /// <param name="Get_All"> If True then it exports all indices. </param>
+        /// <summary>
+        /// Returns array of WS for either the target or reference site for specified WD, hourly and temp
+        /// indices for concurrent data set (defined using function Find_Concurrent_Data)
+        /// </summary>
         ///
-        /// <returns>   An array of type float containing either target or reference wind speeds during 
-        ///             concurrent period. </returns>
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="Target_or_Ref">    flag to specifiy target or reference WS. </param>
+        /// <param name="WD_ind">           Wind direction index. </param>
+        /// <param name="Hourly_ind">       Hourly index. </param>
+        /// <param name="Temp_ind">         Temperature index. </param>
+        /// <param name="Min_WS">           Minimum ws. </param>
+        /// <param name="Max_WS">           Maximum ws. </param>
+        /// <param name="Get_All">          If True then it exports all indices. </param>
+        ///
+        /// <returns>
+        /// An array of type float containing either target or reference wind speeds during concurrent
+        /// period.
+        /// </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] Get_Conc_WS_Array(string Target_or_Ref, int WD_ind, int Hourly_ind, int Temp_ind, float Min_WS, float Max_WS, bool Get_All)
         {            
             float[] These_WS = null;
@@ -988,9 +1283,13 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Called when 'Import Target data' button is clicked. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <param name="sender">   Source of the event. </param>
         /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnImportTarget_Click(object sender, EventArgs e)
         {
             // Read in time series wind speed and WD data at reference site
@@ -1012,9 +1311,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Imports Target site wind speed and wind direction data.              </summary>
+        /// <summary>   Imports Target site wind speed and wind direction data. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <param name="filename"> Filename of the reference datafile. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Import_Target_Data(string filename)
         {        
             string line;
@@ -1130,12 +1433,19 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Creates array of Concurrent_data containing WS & WD at reference and target sites</summary>
-        /// <param name="Conc_form"> If True, uses start and end date on form otherwise uses dates in memory
-        ///                           (i.e. this is done in uncertainty calculations). </param>
-        /// <param name="Start"> Start Date/Time of concurrent data set. </param>
-        /// <param name="End"> End Date/Time of concurrent data set </param>
+        /// <summary>
+        /// Creates array of Concurrent_data containing WS &amp; WD at reference and target sites.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="Conc_form">    If True, uses start and end date on form otherwise uses dates in
+        ///                             memory
+        ///                              (i.e. this is done in uncertainty calculations). </param>
+        /// <param name="Start">        Start Date/Time of concurrent data set. </param>
+        /// <param name="End">          End Date/Time of concurrent data set. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Find_Concurrent_Data(bool Conc_form, DateTime Start, DateTime End)
         {            
             int Conc_count = 0;
@@ -1206,10 +1516,15 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Gets hourly index of specified hour and based on defined hourly intervals. </summary>
-        /// <param name="This_Hour"> Hour value. </param>
+        /// <summary>   Gets hourly index of specified hour and based on defined hourly intervals. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="This_Hour">    Hour value. </param>
+        ///
         /// <returns>   The Hourly index. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Hourly_Index(int This_Hour)
         {
             int Hour_Ind = 0;
@@ -1265,13 +1580,19 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gets temperature index for specified temperature and wind direction and hourly 
-        ///             indices. </summary>
-        /// <param name="WD_ind"> Wind direction index. </param>
-        /// <param name="Hour_ind"> Hourly index. </param>
-        /// <param name="This_temp"> Temperature. </param>
+        /// <summary>
+        /// Gets temperature index for specified temperature and wind direction and hourly indices.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="WD_ind">       Wind direction index. </param>
+        /// <param name="Hour_ind">     Hourly index. </param>
+        /// <param name="This_temp">    Temperature. </param>
+        ///
         /// <returns>   The temperature index. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Get_Temp_ind(int WD_ind, int Hour_ind, float This_temp)
         {
             int Temp_ind = 0;
@@ -1309,14 +1630,20 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gets minimum and maximum temperature in bin with specified wind direction, hourly
-        ///             and temperature indices. </summary>
-        /// <param name="WD_ind"> Wind direction index. </param>
+        /// <summary>
+        /// Gets minimum and maximum temperature in bin with specified wind direction, hourly and
+        /// temperature indices.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="WD_ind">   Wind direction index. </param>
         /// <param name="Hour_ind"> Hourly index. </param>
         /// <param name="Temp_ind"> Temperature index. </param>
         ///
         /// <returns>   An array of type float containing min and max temperature. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] Get_Min_Max_Temp(int WD_ind, int Hour_ind, int Temp_ind)
         {
             float[] Min_Max_Temp = new float[2];
@@ -1391,9 +1718,14 @@ namespace MCP
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Gets minimum and maximum wind direction in specified wind direction bin. </summary>
-        /// <param name="WD_ind">  Wind direction index. </param>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="WD_ind">   Wind direction index. </param>
+        ///
         /// <returns>   An array of type float containing min and max wind direction in degs. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] Get_Min_Max_WD(int WD_ind)
         {
             float[] Min_Max_WD = new float[2];
@@ -1418,11 +1750,16 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Extracts array of concurrent data from Conc_Data_All based on specified start and 
-        ///            end dates .              </summary>
-        /// <param name="This_Conc_Start"> Start Date/Time of concurrent data to use in MCP. </param>
-        /// <param name="This_Conc_End">  End Date/Time of concurrent data to use in MCP.  </param>
+        /// <summary>
+        /// Extracts array of concurrent data from Conc_Data_All based on specified start and end dates .
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="This_Conc_Start">  Start Date/Time of concurrent data to use in MCP. </param>
+        /// <param name="This_Conc_End">    End Date/Time of concurrent data to use in MCP. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Get_Subset_Conc_Data(DateTime This_Conc_Start, DateTime This_Conc_End)
         {
             int S = 0;
@@ -1452,7 +1789,10 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gets sector count.
+        /// <summary>   Gets sector count. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <param name="WD_ind">   Wind direction index. </param>
         /// <param name="Hour_ind"> Hourly index. </param>
         /// <param name="Temp_ind"> Temperature index. </param>
@@ -1488,6 +1828,20 @@ namespace MCP
         
         /// <returns>   A float. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// <summary>   Executes the mcp operation. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="This_Conc_Start">  Start Date/Time of concurrent data to use in MCP. </param>
+        /// <param name="This_Conc_End">    End Date/Time of concurrent data to use in MCP. </param>
+        /// <param name="Use_All_Data">     True to use all data. </param>
+        /// <param name="MCP_Method">       The mcp method. </param>
+        ///
+        /// <returns>   A float. </returns>
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float Do_MCP(DateTime This_Conc_Start, DateTime This_Conc_End, bool Use_All_Data, string MCP_Method)
         {
             // Performs MCP using a linear model (i.e orthogonal regression or variance ratio) or a method of bins or a Matrix method
@@ -1853,12 +2207,19 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Searches for the Cumulative Distribution Function index that corresponds to random
-        ///           number (between 0 and 1).             </summary>
+        /// <summary>
+        /// Searches for the Cumulative Distribution Function index that corresponds to random number
+        /// (between 0 and 1).
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
         /// <param name="This_CDF"> This Cumulative Distribution Function. </param>
         /// <param name="Rand_Num"> The random number from 0 to 1. </param>
+        ///
         /// <returns>   The CDF index corresponding to random number. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public int Find_CDF_Index(CDF_Obj This_CDF, float Rand_Num)
         {
             float Min_Diff = 100;
@@ -1884,13 +2245,19 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> When creating a CDF from discrete data, plateaus are present in CDF, this function
-        ///           interpolates between points so the estimated WS ramps up with random number instead
-        ///           of being step-wise </summary>
-        /// <remarks>  NOT CURRENTLY USED. NOT TESTED </remarks>
+        /// <summary>
+        /// When creating a CDF from discrete data, plateaus are present in CDF, this function
+        /// interpolates between points so the estimated WS ramps up with random number instead of being
+        /// step-wise.
+        /// </summary>
+        ///
+        /// <remarks>   NOT CURRENTLY USED. NOT TESTED. </remarks>
+        ///
         /// <param name="This_CDF"> this cdf. </param>
-        /// <returns> Interpolated CDF as array of type float. </returns>
+        ///
+        /// <returns>   Interpolated CDF as array of type float. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] Interpolate_CDF(float[] This_CDF)
         {           
             float[] Interp_CDF = new float[1000];
@@ -1931,13 +2298,20 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Calculates and returns CDF corresponding to last WS estimate and calculated standard
-        ///           deviation of change in WS from one hour to next. </summary>
-        /// <param name="Last_WS"> Wind speed estimated for previous timestamp. </param>
-        /// <param name="CDF_Min_WS"> The minimum WS in CDF. </param>
-        /// <param name="CDF_WS_int"> The WS interval in CDF. </param>        
-        /// <returns> Calculated 'LastWS' CDF as array of type float. </returns>
+        /// <summary>
+        /// Calculates and returns CDF corresponding to last WS estimate and calculated standard
+        /// deviation of change in WS from one hour to next.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <param name="Last_WS">      Wind speed estimated for previous timestamp. </param>
+        /// <param name="CDF_Min_WS">   The minimum WS in CDF. </param>
+        /// <param name="CDF_WS_int">   The WS interval in CDF. </param>
+        ///
+        /// <returns>   Calculated 'LastWS' CDF as array of type float. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public float[] Get_Lag_WS_CDF(float Last_WS, float CDF_Min_WS, float CDF_WS_int)
         {             
             float[] Lag_WS_CDF = new float[100];
@@ -1980,12 +2354,16 @@ namespace MCP
 
             return Lag_WS_CDF;
         }
-               
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Calculate standard deviation of change in wind speed at target site for 
-        ///            specified concurrent period </summary>
+        /// <summary>
+        /// Calculate standard deviation of change in wind speed at target site for specified concurrent
+        /// period.
+        /// </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Find_SD_Change_in_WS()
         {    
             DateTime Last_Record = DateTime.Today;
@@ -2032,23 +2410,27 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Gets a random number between 0 and 1. </summary>
-        /// <returns>  Random number. </returns>
+        /// <summary>   Gets a random number between 0 and 1. </summary>
+        ///
+        /// <remarks>   OEE, 10/19/2017. </remarks>
+        ///
+        /// <returns>   Random number. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public Random Get_Random_Number()
         {
             Random rnd = new Random(DateTime.Now.Millisecond);
 
             return rnd;
         }
-                
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Calculates the slope of the orthogonal regression. </summary>
+        /// <summary>   Calculates the slope of the orthogonal regression. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ///
-        /// <param name="var_x">  Variance of concurrent reference wind speed. </param>
-        /// <param name="var_y">   Variance of concurrent target wind speed. </param>
+        /// <param name="var_x">    Variance of concurrent reference wind speed. </param>
+        /// <param name="var_y">    Variance of concurrent target wind speed. </param>
         /// <param name="covar_xy"> Covariance of concurrent reference and target wind speed. </param>
         ///
         /// <returns>   The calculated slope of orthogonal regression. </returns>
@@ -2066,15 +2448,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Calculates the slope of variance ratio method where slope is defined as ratio of
-        ///             standard deviation of reference and target concurrent wind speed. </summary>
+        /// <summary>
+        /// Calculates the slope of variance ratio method where slope is defined as ratio of standard
+        /// deviation of reference and target concurrent wind speed.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ///
-        /// <param name="var_x"> Variance of concurrent reference wind speed. </param>
-        /// <param name="var_y"> Variance of concurrent target wind speed. </param>
+        /// <param name="var_x">    Variance of concurrent reference wind speed. </param>
+        /// <param name="var_y">    Variance of concurrent target wind speed. </param>
         ///
-        /// <returns> The calculated slope of variance ratio method. </returns>
+        /// <returns>   The calculated slope of variance ratio method. </returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public float Calc_Varrat_Slope(float var_x, float var_y)
@@ -2101,6 +2485,7 @@ namespace MCP
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Text_boxes()
         {
             int WD_ind = Get_WD_ind_to_plot();
@@ -2299,11 +2684,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Updates calendar dates for concurrent period used in MCP and dates used in 
-        ///             export. </summary>
+        /// <summary>
+        /// Updates calendar dates for concurrent period used in MCP and dates used in export.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Dates()
         {
             if (Got_Conc && (date_Corr_Start.Value != Conc_Start))
@@ -2324,10 +2711,11 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Resets the export dates with start/end date of reference dataset. </summary>
+        /// <summary>   Resets the export dates with start/end date of reference dataset. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Reset_Export_Dates()
         {
             if (Ref_Data.Length > 0)
@@ -2338,10 +2726,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Find start and end dates of full concurrent period and updates the form dates. </summary>
+        /// <summary>
+        /// Find start and end dates of full concurrent period and updates the form dates.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Set_Conc_Dates_On_Form()
         {            
             if (Got_Targ != true || Got_Ref != true)
@@ -2369,10 +2760,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Updates the dropdown menu used to select wind direction to display on plot. </summary>
+        /// <summary>
+        /// Updates the dropdown menu used to select wind direction to display on plot.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_WD_DropDown()
         {
             cboWD_sector.Items.Clear();
@@ -2389,10 +2783,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Updates the dropdown meanu used to select temperature interval to display on plot. </summary>
+        /// <summary>
+        /// Updates the dropdown meanu used to select temperature interval to display on plot.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Temp_Dropdown()
         {
             cboTemp_Int.Items.Clear();
@@ -2435,10 +2832,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Updates the dropdown meanu used to select hourly interval to display on plot. </summary>
+        /// <summary>
+        /// Updates the dropdown meanu used to select hourly interval to display on plot.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Hourly_DropDown()
         {
             cboHourInt.Items.Clear();                      
@@ -2485,10 +2885,11 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Enables or disables export buttons based on what analysis has been done </summary>
+        /// <summary>   Enables or disables export buttons based on what analysis has been done. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Export_buttons()
         {             
             if ((Get_MCP_Method() == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null) || (Get_MCP_Method() == "Method of Bins" && MCP_Bins.LT_WS_Est != null) 
@@ -2525,6 +2926,7 @@ namespace MCP
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_plot()
         {            
             int WD_ind = Get_WD_ind_to_plot();
@@ -2673,10 +3075,11 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Update list with mean and standard deviation of WS ratios. </summary>
+        /// <summary>   Update list with mean and standard deviation of WS ratios. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Bin_List()
         {             
             lstBins.Items.Clear();
@@ -2704,11 +3107,14 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Update table with results of uncertainty analysis showing window size, mean LT estimate
-        ///           and standard deviation of LT estimate. </summary>
+        /// <summary>
+        /// Update table with results of uncertainty analysis showing window size, mean LT estimate and
+        /// standard deviation of LT estimate.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Uncert_List()
         {             
             lstUncert.Items.Clear();
@@ -2769,13 +3175,16 @@ namespace MCP
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Resets the MCP analysis and clears all calculated onjects. </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. This is different from New_MCP in that it clears the calculated values
-        ///             but it keeps the user-specified number of bins, weights </remarks>
+        /// <remarks>
+        /// Liz, 5/16/2017. This is different from New_MCP in that it clears the calculated values but it
+        /// keeps the user-specified number of bins, weights.
+        /// </remarks>
         ///
         /// <param name="All_or_Matrix_or_Bin"> If 'All', clears entire analysis, 'Matrix_and_Bins' clear
         ///                                     Matrix-LastWS and Method_of_Bins objects only, 'Matrix'
         ///                                     clears only Matrix-LasatWS object. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Reset_MCP(string All_or_Matrix_or_Bin)
         {
             if (All_or_Matrix_or_Bin == "All")
@@ -2829,14 +3238,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when number of wind direction sector dropdown is changed and
-        ///             resets MCP analysis if calculations have been conducted already.</summary>
+        /// <summary>
+        /// Event handler. Called when number of wind direction sector dropdown is changed and resets MCP
+        /// analysis if calculations have been conducted already.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ///
         /// <param name="sender">   Source of the event. </param>
-        /// <param name="e"> Event information. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboNumWD_SelectedIndexChanged(object sender, EventArgs e)
         {            
             if ((MCP_Ortho.Slope == null) && (MCP_Varrat.Slope == null) && (MCP_Bins.Bin_Avg_SD_Cnt == null) && (MCP_Matrix.LT_WS_Est == null) && (Uncert_Ortho.Length == 0)
@@ -2864,7 +3276,11 @@ namespace MCP
         /// <summary>   Event handler. Called when 'Clear Reference data' button is clicked. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnClearRef_Click(object sender, EventArgs e)
         {
             string message = "Are you sure that you want to clear the reference data?";
@@ -2883,7 +3299,11 @@ namespace MCP
         /// <summary>   Event handler. Called when 'Clear Target data' button is clicked. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnClearTarget_Click(object sender, EventArgs e)
         {
             if (Target_Data.Length > 0)
@@ -2903,10 +3323,14 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Run MCP' button is clicked.  </summary>
+        /// <summary>   Event handler. Called when 'Run MCP' button is clicked. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnRunMCP_Click(object sender, EventArgs e)
         {
             
@@ -2921,11 +3345,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Event handler. Called when WD Sector dropdown is changed which triggers the scatterplot
-        ///           to be updated. If selected WD interval is anything other than "All WD" and selected 
-        ///           hourly interval is "All Hours" or selected Temperature bin is "All temps" then set 
-        ///           to 'All WD' since we do MCP for All Hours and All WD and All temp and then for 
-        ///           each WD, hourly interval and temperature bin </summary>
+        /// <summary>
+        /// Event handler. Called when WD Sector dropdown is changed which triggers the scatterplot to be
+        /// updated. If selected WD interval is anything other than "All WD" and selected hourly interval
+        /// is "All Hours" or selected Temperature bin is "All temps" then set to 'All WD' since we do
+        /// MCP for All Hours and All WD and All temp and then for each WD, hourly interval and
+        /// temperature bin.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ///
@@ -2963,7 +3389,11 @@ namespace MCP
         /// <summary>   Event handler. Called when Correlate Start data/time value is changed. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void date_Corr_Start_ValueChanged(object sender, EventArgs e)
         {
             DialogResult result = System.Windows.Forms.DialogResult.Yes;
@@ -2986,7 +3416,11 @@ namespace MCP
         /// <summary>   Event handler. Called when Correlate End data/time value is changed. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void date_Corr_End_ValueChanged(object sender, EventArgs e)
         {
             DialogResult result = System.Windows.Forms.DialogResult.Yes;
@@ -3008,6 +3442,9 @@ namespace MCP
         /// <summary>   Event handler. Called when Export_Start date is changed. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void date_Export_Start_ValueChanged(object sender, EventArgs e)
@@ -3025,17 +3462,25 @@ namespace MCP
         /// <summary>   Event handler. Called by MCP_tool for load events. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void MCP_tool_Load(object sender, EventArgs e)
         {
             //
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Event handler. Called when MCP method selected in dropdown is changed </summary>
+        /// <summary>   Event handler. Called when MCP method selected in dropdown is changed. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboMCP_Type_SelectedIndexChanged(object sender, EventArgs e)
         {
             Update_Run_Buttons();          
@@ -3052,6 +3497,7 @@ namespace MCP
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Update_Run_Buttons()
         {
             string MCP_type = Get_MCP_Method();
@@ -3071,11 +3517,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Export Estimated Data as Time Series' button is
-        ///             clicked. Exports estimated time series of WS and WD at target site to a .CSV </summary>
+        /// <summary>
+        /// Event handler. Called when 'Export Estimated Data as Time Series' button is clicked. Exports
+        /// estimated time series of WS and WD at target site to a .CSV.
+        /// </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio </remarks>
+        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnExportTS_Click(object sender, EventArgs e)
         {
             string filename = "";
@@ -3177,11 +3629,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Export WS Bin Ratios' button is clicked. 
-        ///             Exports average, SD and count of WS ratios in each WS/WD bin. </summary>
+        /// <summary>
+        /// Event handler. Called when 'Export WS Bin Ratios' button is clicked. Exports average, SD and
+        /// count of WS ratios in each WS/WD bin.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnExportBinRatios_Click(object sender, EventArgs e)
         {
             string filename = "";
@@ -3301,11 +3759,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Export Estimated data as TAB file'. Export estimated 
-        ///             time series data as a TAB file (i.e. joint WS/WD distribution) </summary>
+        /// <summary>
+        /// Event handler. Called when 'Export Estimated data as TAB file'. Export estimated time series
+        /// data as a TAB file (i.e. joint WS/WD distribution)
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnExportTAB_Click(object sender, EventArgs e)
         {
             string filename = "";
@@ -3316,22 +3780,27 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Creates TAB file which is joint wind speed and wind direction distribution. </summary>
+        /// <summary>
+        /// Creates TAB file which is joint wind speed and wind direction distribution.
+        /// </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside Visual Studio by comparing to Excel VBA: 'Create TAB file.xlsm' </remarks>
+        /// <remarks>
+        /// Liz, 5/16/2017. Tested outside Visual Studio by comparing to Excel VBA: 'Create TAB
+        /// file.xlsm'.
+        /// </remarks>
         ///
-        /// <param name="filename"> Filename of the output TAB file. </param>
-        /// <param name="This_Start"> Start Date/Time to use when creating WS/WD distribution. </param>
-        /// <param name="This_End"> End Date/Time to use when creating WS/WD distribution. </param>
+        /// <param name="filename">     Filename of the output TAB file. </param>
+        /// <param name="This_Start">   Start Date/Time to use when creating WS/WD distribution. </param>
+        /// <param name="This_End">     End Date/Time to use when creating WS/WD distribution. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Create_TAB_file(string filename, DateTime This_Start, DateTime This_End)
         {
             if (filename != "")
             {
                 try
                 {
-
-
+                    // open file to output TAB file
                     StreamWriter file = new StreamWriter(filename);
                     string MetName = txtTargetName.Text;
                     file.WriteLine(MetName);
@@ -3366,6 +3835,7 @@ namespace MCP
                         return;
                     }
 
+                    // write TAB header details
                     file.WriteLine(UTMs_Height);
                     file.Write(Num_bins);
                     file.Write(" ");
@@ -3386,6 +3856,8 @@ namespace MCP
 
                     int Est_data_ind = 0;
 
+                    // searches through MCP LT WS Est timeseries to find Est_data_ind corresponding
+                    // to first data point to use in TAB file
                     if (MCP_type == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null)
                     {
                         for (int i = 0; i < MCP_Ortho.LT_WS_Est.Length; i++)
@@ -3450,12 +3922,12 @@ namespace MCP
 
                     }
                                         
-
+                    // starting at This_Start, goes through LT WS Est data, until it reaches This_End,
+                    // and finds WD and WS/WD distributions
                     while (This_TS <= This_End)
                     {
                         if (This_WS >= 0 && This_WD >= 0)
-                        {                            
-
+                        {                
                             int WS_ind = Get_WS_ind(This_WS, WS_bin_width);
                             int WD_ind = Get_WD_ind(This_WD, Num_bins);
 
@@ -3464,7 +3936,10 @@ namespace MCP
                             Wind_Rose[WD_ind]++;
                             WSWD_Dist[WS_ind, WD_ind]++;                         
                                                        
-                        }                                           
+                        }
+
+                        if (This_TS == This_End)
+                            break;
 
                         if (MCP_type == "Orth. Regression" && MCP_Ortho.LT_WS_Est != null)
                         {
@@ -3541,11 +4016,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when textbox "WS bin width" value changes. This value only
-        ///             affects Method of Bins and Matrix-LastWS MCP methods </summary>
+        /// <summary>
+        /// Event handler. Called when textbox "WS bin width" value changes. This value only affects
+        /// Method of Bins and Matrix-LastWS MCP methods.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void txtWS_bin_width_TextChanged(object sender, EventArgs e)
         {
             DialogResult result = DialogResult.Yes;
@@ -3569,11 +4050,19 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Convert to Hourly' button is clicked.  Reads in 
-        ///             10-minute time series WS and WD data, converts to hourly data and saves .CSV file </summary>
+        /// <summary>
+        /// Event handler. Called when 'Convert to Hourly' button is clicked.  Reads in 10-minute time
+        /// series WS and WD data, converts to hourly data and saves .CSV file.
+        /// </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio by comparing to excel VBA tool output </remarks>
+        /// <remarks>
+        /// Liz, 5/16/2017. Tested outside of Visual Studio by comparing to excel VBA tool output.
+        /// </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnConvertToHourly_Click(object sender, EventArgs e)
         {            
             // Prompt user to find reference data file
@@ -3581,6 +4070,8 @@ namespace MCP
 
             if (ofdRefSite.ShowDialog() == DialogResult.OK)
                 filename = ofdRefSite.FileName;
+            else
+                return;
 
             string line;
             DateTime This_Date;
@@ -3720,12 +4211,20 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Convert to Monthly' button is clicked. Reads in 10-mi 
-        ///             time series WS and WD data, converts to monthly and saves .CSV file. It calculates
-        ///             the average WS and the mode of WD (to nearest 5 degrees) </summary>
+        /// <summary>
+        /// Event handler. Called when 'Convert to Monthly' button is clicked. Reads in 10-mi time series
+        /// WS and WD data, converts to monthly and saves .CSV file. It calculates the average WS and the
+        /// mode of WD (to nearest 5 degrees)
+        /// </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio by comparing to output from excel </remarks>
+        /// <remarks>
+        /// Liz, 5/16/2017. Tested outside of Visual Studio by comparing to output from excel.
+        /// </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnConvertMonthly_Click(object sender, EventArgs e)
         {
             
@@ -3745,6 +4244,8 @@ namespace MCP
 
             if (ofdRefSite.ShowDialog() == DialogResult.OK)
                 filename = ofdRefSite.FileName;
+            else
+                return;
 
             string[] split_filename = filename.Split('.');
             string month_filename = split_filename[0] + "_monthly.csv";
@@ -3917,7 +4418,11 @@ namespace MCP
         /// <summary>   Event handler. Called when date_Export_End is changed. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void date_Export_End_ValueChanged(object sender, EventArgs e)
         {
             if (date_Export_End.Value < Ref_Start && Is_Newly_Opened_File == false)
@@ -3933,7 +4438,11 @@ namespace MCP
         /// <summary>   Event handler. Called when 'Update Plot' button is clicked. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnUpdate_Conc_Plot_Click(object sender, EventArgs e)
         {
             Update_plot();
@@ -3943,9 +4452,12 @@ namespace MCP
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Event handler. Called when 'Run Uncertainty Analysis' button is clicked. </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. 
-        ///             MCP runs. </remarks>
+        /// <remarks>   Liz, 5/16/2017. MCP runs. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnMCP_Uncert_Click(object sender, EventArgs e)
         {
 
@@ -3955,11 +4467,11 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Executes the MCP uncertainty analysis.
-        ///              </summary>
+        /// <summary>   Executes the MCP uncertainty analysis. </summary>
         ///
-        /// <remarks>   Liz, 5/24/2017.  </remarks>
+        /// <remarks>   Liz, 5/24/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Do_MCP_Uncertainty()
         {
             int Uncert_Step_Size = Get_Uncert_Step_Size(); // Step size (in months) that defines the next start date. 
@@ -4117,13 +4629,16 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Calculates the average and standard deviation of long-term estimates generated for
-        ///             an uncertainty object (i.e. certain window size, start and end dates) </summary>
+        /// <summary>
+        /// Calculates the average and standard deviation of long-term estimates generated for an
+        /// uncertainty object (i.e. certain window size, start and end dates)
+        /// </summary>
         ///
-        /// <remarks>  Liz, 5/16/2017. </remarks>
+        /// <remarks>   Liz, 5/16/2017. </remarks>
         ///
-        /// <param name="This_Uncert"> MCP Uncertainty object, MCP_Uncert. </param>
+        /// <param name="This_Uncert">  [in,out] MCP Uncertainty object, MCP_Uncert. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Calc_Avg_SD_Uncert(ref MCP_Uncert This_Uncert)
         {
             double sum_x = 0;
@@ -4149,8 +4664,10 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Updates the Uncertainty analysis plot which shows the average and standard deviation
-        ///             of the LT Estimates using different monthly window sizes. </summary>
+        /// <summary>
+        /// Updates the Uncertainty analysis plot which shows the average and standard deviation of the
+        /// LT Estimates using different monthly window sizes.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4241,9 +4758,14 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Export Uncertainty Analysis' button is clicked </summary>
+        /// <summary>
+        /// Event handler. Called when 'Export Uncertainty Analysis' button is clicked.
+        /// </summary>
         ///
         /// <remarks>   OEE, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private void btnExportMultitest_Click(object sender, EventArgs e)
@@ -4379,7 +4901,11 @@ namespace MCP
         /// <summary>   Event handler. Called when 'Reset Dates' button is clicked. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnResetDates_Click(object sender, EventArgs e)
         {
             Reset_Export_Dates();
@@ -4389,7 +4915,11 @@ namespace MCP
         /// <summary>   Event handler. Called when 'Reset Conc Dates' button is clicked. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnResetConcDates_Click(object sender, EventArgs e)
         {
             Set_Conc_Dates_On_Form();
@@ -4399,16 +4929,20 @@ namespace MCP
         /// <summary>   Event handler. Called when File->New is selected from top menu. </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             New_MCP(true, true);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Creates a new MCP analysis and sets all fields to default values. </summary>
+        /// <summary>   Creates a new MCP analysis and sets all fields to default values. </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio </remarks>
+        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio. </remarks>
         ///
         /// <param name="Clear_Ref">    True to clear reference. </param>
         /// <param name="Clear_Target"> True to clear target. </param>
@@ -4435,7 +4969,7 @@ namespace MCP
             Conc_Data = new Concurrent_data[0];
             Got_Conc = false;
 
-            Num_WD_Sectors = 1;
+            Num_WD_Sectors = 16;
             Num_Hourly_Ints = 1;
             Num_Temp_bins = 1;
             WS_bin_width = 1;
@@ -4444,7 +4978,7 @@ namespace MCP
 
             Is_Newly_Opened_File = true;
 
-            cboNumWD.SelectedIndex = 0;
+            cboNumWD.SelectedIndex = 4;
             cboNumHours.SelectedIndex = 0;
             cboNumTemps.SelectedIndex = 0;
 
@@ -4483,11 +5017,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Gets data counts for every WD, hourly and temperature bin in reference dataset. </summary>
+        /// <summary>
+        /// Gets data counts for every WD, hourly and temperature bin in reference dataset.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
-        ///        
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Find_Sector_Counts()
         {
             int Total_comb = Num_WD_Sectors * Num_Hourly_Ints * Num_Temp_bins;
@@ -4512,7 +5048,7 @@ namespace MCP
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ///
-        /// <param name="Default_folder"> The default folder location. </param>
+        /// <param name="Default_folder">   The default folder location. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public void Set_Default_Folder_locations(string Default_folder)
@@ -4526,8 +5062,12 @@ namespace MCP
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Event handler. Called when 'File->SaveAs' is clicked from top menu bar. </summary>
         ///
-        /// <remarks> Liz, 5/16/2017. </remarks>
+        /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (sfdSaveMCP.ShowDialog() == DialogResult.OK)
@@ -4542,10 +5082,11 @@ namespace MCP
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Saves an MCP analysis file with .MCP extension. </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio</remarks>
+        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio. </remarks>
         ///
-        /// <param name="Whole_Path"> Full pathname of the file to be saved. </param>
+        /// <param name="Whole_Path">   Full pathname of the file to be saved. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Save_File(string Whole_Path)
         {
             FileStream fStream = File.Create(Whole_Path);
@@ -4598,11 +5139,13 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Adds an asterisk to filename on top bar of form when any changes are made to the 
-        ///           MCP analysis. </summary>
+        /// <summary>
+        /// Adds an asterisk to filename on top bar of form when any changes are made to the MCP analysis.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         public void Changes_Made()
         {
             this.Text = Saved_Filename + "*";
@@ -4611,8 +5154,12 @@ namespace MCP
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Event handler. Called when File->Open is selected from the top menu. </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio </remarks>
+        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (ofdOpenMCP.ShowDialog() == DialogResult.OK)
@@ -4925,8 +5472,12 @@ namespace MCP
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>   Event handler. Called when File->Save is clicked from top menu bar. </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio </remarks>
+        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (Saved_Filename != "")
@@ -4934,10 +5485,16 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Event handler. Called when 'Num Hours Bin' dropdown menu selection is changed. </summary>
+        /// <summary>
+        /// Event handler. Called when 'Num Hours Bin' dropdown menu selection is changed.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboNumHours_SelectedIndexChanged(object sender, EventArgs e)
         {
             // update WD sector drop-down
@@ -4974,14 +5531,20 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Hour Interval' dropdown menu selection for plot is changed. 
-        ///             If selected hourly interval is anything other than "All Hours" and selected WD sector
-        ///             is "All WD" or selected temp bin is "All temps" then it is set to first index since
-        ///             we do MCP for All Hours & All WD & All temp and then for each WD and each hourly 
-        ///             interval and each temp bin</summary>
+        /// <summary>
+        /// Event handler. Called when 'Hour Interval' dropdown menu selection for plot is changed. If
+        /// selected hourly interval is anything other than "All Hours" and selected WD sector is "All
+        /// WD" or selected temp bin is "All temps" then it is set to first index since we do MCP for All
+        /// Hours &amp; All WD &amp; All temp and then for each WD and each hourly interval and each temp
+        /// bin.
+        /// </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017.  </remarks>
+        /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboHourInt_SelectedIndexChanged(object sender, EventArgs e)
         {            
             if (cboHourInt.SelectedItem.ToString() != "All Hours")
@@ -5009,13 +5572,18 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>  Event handler. Called when 'Temp. Bin' dropdown menu selection for plot is changed.
-        ///            If selected temperature interval is anything other than "All Temps" and selected WD
-        ///            sector is "All WD" or selected hour bin is "All Hours" then it is set to first index
-        ///  </summary>
+        /// <summary>
+        /// Event handler. Called when 'Temp. Bin' dropdown menu selection for plot is changed. If
+        /// selected temperature interval is anything other than "All Temps" and selected WD sector is
+        /// "All WD" or selected hour bin is "All Hours" then it is set to first index.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboTemp_Int_SelectedIndexChanged(object sender, EventArgs e)
         {         
             if (cboTemp_Int.SelectedItem.ToString() != "All Temps")
@@ -5043,10 +5611,14 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Event handler. Called when dropdown 'Num. Temp. Bins' is changed.  </summary>
+        /// <summary>   Event handler. Called when dropdown 'Num. Temp. Bins' is changed. </summary>
         ///
-        /// <remarks>  Liz, 5/16/2017. </remarks>
+        /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboNumTemps_SelectedIndexChanged(object sender, EventArgs e)
         {
             // update temperature interval drop-down
@@ -5075,14 +5647,19 @@ namespace MCP
             }
         }
 
-
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when button 'Export Annual TAB files' is clicked. Exports 
-        ///             annual TAB files, with first start year = first year starting in Jan. 
-        ///             File Name convention: MetName_Year.TAB </summary>
+        /// <summary>
+        /// Event handler. Called when button 'Export Annual TAB files' is clicked. Exports annual TAB
+        /// files, with first start year = first year starting in Jan. File Name convention:
+        /// MetName_Year.TAB.
+        /// </summary>
         ///
-        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio</remarks>
+        /// <remarks>   Liz, 5/16/2017. Tested outside of Visual Studio. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void btnExportAnnualTABs_Click(object sender, EventArgs e)
         {
             
@@ -5126,7 +5703,11 @@ namespace MCP
         /// <summary>   Event handler. Called when 'About MCP' is clicked from top menu bar. </summary>
         ///
         /// <remarks>   OEE, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void aboutMCPToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MCP_Info MCP_About = new MCP_Info();
@@ -5134,12 +5715,17 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary> Event handler. Called when 'Uncert. Window size (months)' dropdown menu selection is 
-        ///           changed. This determines the step size used in the uncertainty analysis by default it
-        ///           is 1 month. </summary>
+        /// <summary>
+        /// Event handler. Called when 'Uncert. Window size (months)' dropdown menu selection is changed.
+        /// This determines the step size used in the uncertainty analysis by default it is 1 month.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void cboUncertStep_SelectedIndexChanged(object sender, EventArgs e)
         {
             if ((Is_Newly_Opened_File == false) && ((Uncert_Ortho.Length > 0) ||
@@ -5167,12 +5753,18 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'WS PDF Weight' textbox is changed. This determines the
-        ///             weighting factor used in the Matrix-LastWS method where the Ref-Target WS Matrix and
-        ///             the ThisWS-LastWS Matrix are combined by a weighting factors. </summary>
+        /// <summary>
+        /// Event handler. Called when 'WS PDF Weight' textbox is changed. This determines the weighting
+        /// factor used in the Matrix-LastWS method where the Ref-Target WS Matrix and the ThisWS-LastWS
+        /// Matrix are combined by a weighting factors.
+        /// </summary>
         ///
-        /// <remarks> Liz, 5/16/2017. </remarks>
+        /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void txtWS_PDF_Wgt_TextChanged(object sender, EventArgs e)
         {
             if ((Is_Newly_Opened_File == false) && (MCP_Matrix.LT_WS_Est != null || MCP_Bins.Bin_Avg_SD_Cnt != null || Uncert_Matrix.Length > 0 || Uncert_Bins.Length > 0))
@@ -5200,12 +5792,18 @@ namespace MCP
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>   Event handler. Called when 'Last WS Weight' textbox is changed. This determines the
-        ///             weighting factor used in the Matrix-LastWS method where the Ref-Target WS Matrix and
-        ///             the ThisWS-LastWS Matrix are combined by a weighting factors. </summary>
+        /// <summary>
+        /// Event handler. Called when 'Last WS Weight' textbox is changed. This determines the weighting
+        /// factor used in the Matrix-LastWS method where the Ref-Target WS Matrix and the ThisWS-LastWS
+        /// Matrix are combined by a weighting factors.
+        /// </summary>
         ///
         /// <remarks>   Liz, 5/16/2017. </remarks>
+        ///
+        /// <param name="sender">   Source of the event. </param>
+        /// <param name="e">        Event information. </param>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void txtLast_WS_Wgt_TextChanged(object sender, EventArgs e)
         {
             if ((Is_Newly_Opened_File == false) && (MCP_Matrix.LT_WS_Est != null || MCP_Bins.Bin_Avg_SD_Cnt != null || Uncert_Matrix.Length > 0 || Uncert_Bins.Length > 0))

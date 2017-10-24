@@ -12,7 +12,7 @@ namespace Stats_Tests
         public void Calc_Avg_WS_Test()
         {
             MCP_tool ThisMCP = new MCP_tool();
-            string filename = "C:\\Users\\OEE2015_12\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\Paulding 10-min data_hourly.csv";
+            string filename = "C:\\Users\\OEE2015_12\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\Paulding 10-min data_hourly.csv";
             ThisMCP.Import_Target_Data(filename);
 
             Stats ThisStats = new Stats();
@@ -37,7 +37,7 @@ namespace Stats_Tests
         {
             MCP_tool ThisMCP = new MCP_tool();
             Stats These_Stats = new Stats();
-            string filename = "C:\\Users\\OEE2015_12\\Dropbox (OEE)\\Software - Development\\MCP\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
+            string filename = "C:\\Users\\OEE2015_12\\Dropbox (OEE)\\Software - Development\\MCP\\v1.0\\QA Backup files\\MERRA2_Lat_41.5_Long_-84.375_19850101_to_20151231_50mWS_50mWD_10mTemp.csv";
             ThisMCP.Import_Reference_data(filename);
             ThisMCP.Num_WD_Sectors = 16;
             ThisMCP.Num_Hourly_Ints = 1;

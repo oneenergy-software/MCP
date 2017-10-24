@@ -28,13 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MCP_tool));
             this.label1 = new System.Windows.Forms.Label();
             this.btnImportRef = new System.Windows.Forms.Button();
@@ -286,7 +286,7 @@
             this.cboNumWD.Name = "cboNumWD";
             this.cboNumWD.Size = new System.Drawing.Size(61, 33);
             this.cboNumWD.TabIndex = 9;
-            this.cboNumWD.Text = "1";
+            this.cboNumWD.Text = "16";
             this.cboNumWD.SelectedIndexChanged += new System.EventHandler(this.cboNumWD_SelectedIndexChanged);
             // 
             // label5
@@ -392,21 +392,21 @@
             // 
             // chtScatter
             // 
-            chartArea3.AxisX.Title = "Reference WS, m/s";
-            chartArea3.AxisY.Title = "Target WS, m/s";
-            chartArea3.Name = "ChartArea1";
-            this.chtScatter.ChartAreas.Add(chartArea3);
-            legend3.Enabled = false;
-            legend3.Name = "Legend1";
-            this.chtScatter.Legends.Add(legend3);
+            chartArea1.AxisX.Title = "Reference WS, m/s";
+            chartArea1.AxisY.Title = "Target WS, m/s";
+            chartArea1.Name = "ChartArea1";
+            this.chtScatter.ChartAreas.Add(chartArea1);
+            legend1.Enabled = false;
+            legend1.Name = "Legend1";
+            this.chtScatter.Legends.Add(legend1);
             this.chtScatter.Location = new System.Drawing.Point(670, 200);
             this.chtScatter.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chtScatter.Name = "chtScatter";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.chtScatter.Series.Add(series4);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chtScatter.Series.Add(series1);
             this.chtScatter.Size = new System.Drawing.Size(968, 378);
             this.chtScatter.TabIndex = 20;
             this.chtScatter.Text = "chtWS_scatter";
@@ -531,7 +531,7 @@
             this.date_Export_End.Location = new System.Drawing.Point(180, 1075);
             this.date_Export_End.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.date_Export_End.Name = "date_Export_End";
-            this.date_Export_End.Size = new System.Drawing.Size(219, 26);
+            this.date_Export_End.Size = new System.Drawing.Size(218, 26);
             this.date_Export_End.TabIndex = 32;
             this.date_Export_End.ValueChanged += new System.EventHandler(this.date_Export_End_ValueChanged);
             // 
@@ -554,7 +554,7 @@
             this.date_Export_Start.Location = new System.Drawing.Point(180, 1012);
             this.date_Export_Start.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.date_Export_Start.Name = "date_Export_Start";
-            this.date_Export_Start.Size = new System.Drawing.Size(219, 26);
+            this.date_Export_Start.Size = new System.Drawing.Size(218, 26);
             this.date_Export_Start.TabIndex = 30;
             this.date_Export_Start.ValueChanged += new System.EventHandler(this.date_Export_Start_ValueChanged);
             // 
@@ -1031,26 +1031,26 @@
             // 
             // chtUncert
             // 
-            chartArea4.AxisX.Title = "Window Size (months)";
-            chartArea4.AxisY.Title = "LT Est. Target WS, m/s";
-            chartArea4.Name = "ChartArea1";
-            this.chtUncert.ChartAreas.Add(chartArea4);
-            legend4.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            legend4.Name = "Legend1";
-            this.chtUncert.Legends.Add(legend4);
+            chartArea2.AxisX.Title = "Window Size (months)";
+            chartArea2.AxisY.Title = "LT Est. Target WS, m/s";
+            chartArea2.Name = "ChartArea1";
+            this.chtUncert.ChartAreas.Add(chartArea2);
+            legend2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            legend2.Name = "Legend1";
+            this.chtUncert.Legends.Add(legend2);
             this.chtUncert.Location = new System.Drawing.Point(674, 598);
             this.chtUncert.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chtUncert.Name = "chtUncert";
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series5.Legend = "Legend1";
-            series5.Name = "LT Est. WS";
-            series6.ChartArea = "ChartArea1";
-            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series6.Legend = "Legend1";
-            series6.Name = "LT Est, Avg";
-            this.chtUncert.Series.Add(series5);
-            this.chtUncert.Series.Add(series6);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series2.Legend = "Legend1";
+            series2.Name = "LT Est. WS";
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series3.Legend = "Legend1";
+            series3.Name = "LT Est, Avg";
+            this.chtUncert.Series.Add(series2);
+            this.chtUncert.Series.Add(series3);
             this.chtUncert.Size = new System.Drawing.Size(712, 360);
             this.chtUncert.TabIndex = 75;
             this.chtUncert.Text = "chtWS_Uncert";
@@ -1129,7 +1129,7 @@
             this.aboutMCPToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1705, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1672, 33);
             this.menuStrip1.TabIndex = 80;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1149,7 +1149,7 @@
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(222, 30);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(221, 30);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
@@ -1157,7 +1157,7 @@
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(222, 30);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(221, 30);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -1166,7 +1166,7 @@
             this.saveToolStripMenuItem.Enabled = false;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(222, 30);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(221, 30);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -1174,7 +1174,7 @@
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(222, 30);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(221, 30);
             this.saveAsToolStripMenuItem.Text = "Save As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
@@ -1182,7 +1182,7 @@
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(222, 30);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(221, 30);
             this.closeToolStripMenuItem.Text = "Close";
             // 
             // aboutMCPToolStripMenuItem
@@ -1514,7 +1514,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1705, 1147);
+            this.ClientSize = new System.Drawing.Size(1672, 920);
             this.Controls.Add(this.txtTAB_WS_bin);
             this.Controls.Add(this.label47);
             this.Controls.Add(this.cboUncertStep);
