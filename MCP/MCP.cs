@@ -3,10 +3,8 @@
 //
 // summary:	Imports reference and target WS and WD data and performs Measure-Correlate-Predict
 // to estimate long-term wind speeds at target site. 
-// Authors: Liz Walls, Andrew Rapin
-// Reviewer: Liz Walls
-// Version Number: 1.0
-// Release Date: 10/19/2017
+// Version Number: 1.2.4
+// Release Date: 10/30/2019
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
