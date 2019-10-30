@@ -319,10 +319,7 @@ namespace MCP_Tests
             Assert.AreEqual(ThisMCP.Max_Temp[14, 6], 27.40, 0.1, "Incorrect Max Temperature Test5G");
 
             Assert.AreEqual(ThisMCP.Min_Temp[14, 7], -19.43, 0.1, "Incorrect Min Temperature Test5H");
-            Assert.AreEqual(ThisMCP.Max_Temp[14, 7], 26.41, 0.1, "Incorrect Max Temperature Test5H");
-
-
-
+            Assert.AreEqual(ThisMCP.Max_Temp[14, 7], 26.41, 0.1, "Incorrect Max Temperature Test5H");                       
 
         }
 

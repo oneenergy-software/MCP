@@ -251,6 +251,8 @@ namespace MCP
             /// <summary>   Standard deviation of LT WS Estimates. </summary>
             public float std_dev;
 
+            public float[] Rsq;
+
             /// <summary>   Start of data period used in uncertainty analysis. </summary>
             public DateTime[] Start;
 
@@ -1400,13 +1402,7 @@ namespace MCP
 
                     Catch_Counter++;
                 }
-            }
-
-            if (Target_count == 0)
-            {
-                MessageBox.Show("No target data was imported. Check your input file!");
-                return;
-            }
+            }                       
             
             // add last of time series (< 1000)
             Array.Resize(ref Target_Data, Target_count + New_data_count);
@@ -1417,6 +1413,12 @@ namespace MCP
                 Target_Data[i].This_WD = TS_data[i - Target_count].This_WD;
             }
             Target_count = Target_count + New_data_count;
+
+            if (Target_count == 0)
+            {
+                MessageBox.Show("No target data was imported. Check your input file!");
+                return;
+            }
 
             file.Close();
 
@@ -4504,6 +4506,7 @@ namespace MCP
                     Uncert_Ortho[m].NWindows = (Num_Obj - m) / Uncert_Step_Size;
 
                     Array.Resize(ref Uncert_Ortho[m].LT_Ests, Uncert_Ortho[m].NWindows);
+                    Array.Resize(ref Uncert_Ortho[m].Rsq, Uncert_Ortho[m].NWindows);
                     Array.Resize(ref Uncert_Ortho[m].Start, Uncert_Ortho[m].NWindows);
                     Array.Resize(ref Uncert_Ortho[m].End, Uncert_Ortho[m].NWindows);
 
@@ -4515,6 +4518,16 @@ namespace MCP
                         Test_End = Test_Start.AddMonths(m + 1);
 
                         Uncert_Ortho[m].LT_Ests[i] = Do_MCP(Test_Start, Test_End, false, current_method);
+
+                        float[] Ref_WS = Get_Conc_WS_Array("Reference", 0, 0, 0, 0, 30, true);
+                        float[] Target_WS = Get_Conc_WS_Array("Target", 0, 0, 0, 0, 30, true);
+
+                        Stats Stat = new Stats();
+                        float var_x = Convert.ToSingle(Stat.Calc_Variance(Ref_WS));
+                        float var_y = Convert.ToSingle(Stat.Calc_Variance(Target_WS));
+                        float covar_xy = Convert.ToSingle(Stat.Calc_Covariance(Ref_WS, Target_WS));
+                        
+                        Uncert_Ortho[m].Rsq[i] = Stat.Calc_R_sqr(covar_xy, var_x, var_y);
                         Uncert_Ortho[m].Start[i] = Test_Start;
                         Uncert_Ortho[m].End[i] = Test_End;
 
@@ -4786,7 +4799,7 @@ namespace MCP
                 file.WriteLine("MCP Uncertainty at Target Site " + current_method + ",");
                 file.WriteLine("Reference: " + txtLoadedReference.Text.Substring(ref_start) + ", Target: " + txtLoadedTarget.Text.Substring(targ_start) + ",");
                 file.WriteLine("Data binned into " + Get_Num_WD() + " WD bins; " + Get_Num_Hourly_Ints() + " Hourly bins; " + Get_Num_Temp_Ints() + " Temp bins");
-                file.WriteLine("Start Time, End Time, Window Size, LT WS Est, LT Avg, Std Dev");
+                file.WriteLine("Start Time, End Time, Window Size, LT WS Est, LT Avg, Std Dev, R Sq");
 
                 if (current_method == "Orth. Regression" && Uncert_Ortho.Length > 0)
                 {
@@ -4808,6 +4821,8 @@ namespace MCP
                                 file.Write(Math.Round(Uncert_Ortho[u].avg, 3));
                                 file.Write(",");
                                 file.Write(Math.Round(Uncert_Ortho[u].std_dev, 4));
+                                file.Write(",");
+                                file.Write(Math.Round(Uncert_Ortho[u].Rsq[i], 4));
                                 file.WriteLine();
                             }
                         }
@@ -5830,7 +5845,16 @@ namespace MCP
                 LastWS_Wgt = Convert.ToSingle(txtLast_WS_Wgt.Text);
             
         }
-        
+
+        private void lstUncert_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 
